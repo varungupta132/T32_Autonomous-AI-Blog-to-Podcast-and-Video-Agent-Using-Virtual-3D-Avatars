@@ -2,6 +2,7 @@
 
 ## 🎯 Current Status: ✅ WORKING
 
+![Screenshot](Screenshot%202026-03-02%20164526.png)
 ---
 
 ## ✅ What's Done (Working)
