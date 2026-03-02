@@ -1,6 +1,8 @@
-# 🎙️ Blog to Podcast Generator (Ollama)
+# 🎙️ AI Blog-to-Podcast Agent with Virtual 3D Avatar Integration
 
-Convert your blogs into engaging podcast scripts using local AI - No API limits!
+A full-stack application that converts blog posts into professional podcast audio with support for multiple speakers and avatar-ready output format.
+
+---
 
 ## ✨ Features
 
@@ -10,6 +12,8 @@ Convert your blogs into engaging podcast scripts using local AI - No API limits!
 - 🌐 **Global** - English audience
 - 🇮🇳 **Indian** - Hinglish audience
 - ♾️ **Unlimited** - No API limits!
+- 🎵 **Audio Generation** - Convert scripts to audio
+- 🎥 **3D Avatar** - Video podcast integration (In Progress)
 
 ## 🚀 Quick Start
 
@@ -20,16 +24,10 @@ Download from: https://ollama.com/download
 ### 2. Install Python Packages
 
 ```bash
-pip install ollama flask
+pip install ollama flask gtts pydub
 ```
 
-### 3. Test Installation
-
-```bash
-python test_ollama.py
-```
-
-### 4. Run Web App
+### 3. Run Web App
 
 ```bash
 python web_podcast_ollama.py
@@ -41,8 +39,8 @@ Open: http://localhost:5000
 
 - **web_podcast_ollama.py** - Web interface (Recommended)
 - **podcast_generator_ollama.py** - Command line interface
-- **test_ollama.py** - Test Ollama installation
-- **setup_ollama.bat** - Auto setup script
+- **podcast_to_voice.py** - Audio converter
+- **PROGRESS.md** - Project progress report
 
 ## 💡 Usage
 
@@ -58,6 +56,12 @@ Open: http://localhost:5000
 
 ```bash
 python podcast_generator_ollama.py
+```
+
+### Audio Generation
+
+```bash
+python podcast_to_voice.py
 ```
 
 ## 🦙 Available Models
@@ -89,6 +93,8 @@ Sameera: Haan! AI education ko transform kar raha hai.
 - ✅ Private & secure
 - ✅ No repetition
 - ✅ Natural dialogue
+- ✅ Audio generation
+- ✅ 3D avatar integration (In Progress)
 
 ## 🔧 Troubleshooting
 
@@ -101,10 +107,21 @@ ollama list
 ollama pull llama2
 ```
 
+## 🎯 Current Status
+
+✅ **Working:**
+- Web interface
+- AI script generation
+- Audio conversion
+
+🔄 **In Progress:**
+- Realistic audio merging
+- 3D avatar integration
+
 ## 🎉 That's It!
 
 Generate unlimited podcast scripts with no limits!
 
 ---
 
-Made with ❤️ using Ollama
+Made with ❤️ using Ollama & Flask
