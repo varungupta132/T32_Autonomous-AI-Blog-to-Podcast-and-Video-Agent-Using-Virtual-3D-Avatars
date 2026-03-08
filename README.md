@@ -170,6 +170,27 @@ python web_podcast_ollama.py --port 5001
 
 Generate unlimited podcast scripts with no limits!
 
----
+## 📚 Documentation
 
-Made with ❤️ using Ollama & Flask
+- [Installation Guide](INSTALLATION.md)
+- [Architecture](ARCHITECTURE.md)
+- [API Documentation](docs/API.md)
+- [Usage Examples](docs/USAGE_EXAMPLES.md)
+- [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Performance Guide](docs/PERFORMANCE.md)
+- [FAQ](docs/FAQ.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## ⭐ Show Your Support
+
+If you find this project helpful, please give it a star on GitHub!
