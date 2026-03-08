@@ -107,6 +107,18 @@ ollama list
 ollama pull llama2
 ```
 
+### Audio generation issues?
+Ensure ffmpeg is installed:
+- Windows: Download from https://ffmpeg.org/download.html
+- Linux: `sudo apt-get install ffmpeg`
+- Mac: `brew install ffmpeg`
+
+### Port already in use?
+Change the port in `config.py` or run:
+```bash
+python web_podcast_ollama.py --port 5001
+```
+
 ## 🎯 Current Status
 
 ✅ **Working:**
