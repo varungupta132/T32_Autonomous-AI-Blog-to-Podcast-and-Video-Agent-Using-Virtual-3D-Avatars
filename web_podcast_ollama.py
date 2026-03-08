@@ -5,8 +5,9 @@ No API limits, completely free!
 
 from flask import Flask, render_template_string, request, jsonify
 import ollama
-from utils import clean_script_text, normalize_speaker_labels, validate_script_lines
-import config
+
+from flask import Flask, render_template_string, request, jsonify
+import ollama
 
 app = Flask(__name__)
 
