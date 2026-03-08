@@ -48,12 +48,14 @@ The AI Blog-to-Podcast Generator is a modular system that converts written blog 
 - Real-time podcast generation
 - Interactive options selection
 - Responsive design
+- Error handling with user-friendly messages
 
 #### CLI Interface (`podcast_generator_ollama.py`)
 - Command-line tool
 - Interactive prompts
 - Script saving functionality
 - Model selection
+- Batch processing support
 
 ### 2. Core Processing Layer
 
