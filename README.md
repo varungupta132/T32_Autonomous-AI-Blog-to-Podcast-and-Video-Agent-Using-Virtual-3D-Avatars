@@ -52,9 +52,26 @@ Open: http://localhost:5000
 - **podcast_to_voice.py** - Audio converter
 - **config.py** - Configuration settings
 - **utils.py** - Utility functions
+- **error_handler.py** - Error handling and logging
 - **PROGRESS.md** - Project progress report
 - **ARCHITECTURE.md** - System architecture documentation
 - **INSTALLATION.md** - Detailed installation guide
+- **CONTRIBUTING.md** - Contribution guidelines
+- **CHANGELOG.md** - Version history
+- **LICENSE** - MIT License
+
+### Documentation
+- **docs/API.md** - API documentation
+- **docs/USAGE_EXAMPLES.md** - Usage examples
+- **docs/TROUBLESHOOTING.md** - Troubleshooting guide
+
+### Examples
+- **examples/sample_blog.txt** - Sample blog content
+- **examples/batch_process.py** - Batch processing script
+
+### Scripts
+- **scripts/setup.sh** - Linux/Mac setup script
+- **scripts/setup.bat** - Windows setup script
 
 ## 💡 Usage
 
