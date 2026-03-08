@@ -40,7 +40,11 @@ Open: http://localhost:5000
 - **web_podcast_ollama.py** - Web interface (Recommended)
 - **podcast_generator_ollama.py** - Command line interface
 - **podcast_to_voice.py** - Audio converter
+- **config.py** - Configuration settings
+- **utils.py** - Utility functions
 - **PROGRESS.md** - Project progress report
+- **ARCHITECTURE.md** - System architecture documentation
+- **INSTALLATION.md** - Detailed installation guide
 
 ## 💡 Usage
 
