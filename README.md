@@ -17,6 +17,10 @@ A full-stack application that converts blog posts into professional podcast audi
 
 ## 🚀 Quick Start
 
+### Prerequisites
+- Python 3.8 or higher
+- Ollama installed on your system
+
 ### 1. Install Ollama
 
 Download from: https://ollama.com/download
@@ -24,10 +28,16 @@ Download from: https://ollama.com/download
 ### 2. Install Python Packages
 
 ```bash
-pip install ollama flask gtts pydub
+pip install -r requirements.txt
 ```
 
-### 3. Run Web App
+### 3. Pull AI Model
+
+```bash
+ollama pull llama2
+```
+
+### 4. Run Web App
 
 ```bash
 python web_podcast_ollama.py
