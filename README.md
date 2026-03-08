@@ -91,13 +91,13 @@ Sameera: Haan! AI education ko transform kar raha hai.
 
 ## ✅ Benefits
 
-- ✅ Unlimited podcasts
-- ✅ No API costs
-- ✅ Works offline
-- ✅ Private & secure
-- ✅ No repetition
-- ✅ Natural dialogue
-- ✅ Audio generation
+- ✅ Unlimited podcasts - no API costs
+- ✅ Works offline - complete privacy
+- ✅ No repetition - natural dialogue
+- ✅ Audio generation with TTS
+- ✅ Multiple podcast formats
+- ✅ Bilingual support (English/Hinglish)
+- ✅ Open source and customizable
 - ✅ 3D avatar integration (In Progress)
 
 ## 🔧 Troubleshooting
