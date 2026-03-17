@@ -28,7 +28,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # ============================================================================
 
 # OpenRouter API Configuration
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = ""
 
 # EdgeTTS voices - Natural Microsoft voices (FREE!)
 VOICE_LIBRARY = {
