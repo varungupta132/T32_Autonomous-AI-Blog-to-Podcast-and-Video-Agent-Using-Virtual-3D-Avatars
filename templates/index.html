@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Podcast Studio</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --primary-hover: #9d4edd;
+            --secondary: #00f2fe;
+            --secondary-hover: #4facfe;
+            --bg-base: #0f0c29;
+            --surface: rgba(255, 255, 255, 0.05);
+            --surface-hover: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #b0a8ba;
+            --border: rgba(255, 255, 255, 0.15);
+            --error: #ff4757;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 2.5rem;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 10;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3.5rem;
+            animation: fadeIn 1.2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .title-gradient {
+            background: linear-gradient(to right, #00f2fe, #4facfe, #8a2be2, #00f2fe);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: shine 4s linear infinite;
+        }
+
+        @keyframes shine {
+            to {
+                background-position: 200% center;
+            }
+        }
+
+        .title-gradient:hover {
+            transform: scale(1.03);
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .title-gradient {
+                font-size: 2.5rem;
+            }
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.03), transparent);
+            transform: skewX(-20deg);
+            transition: 0.6s;
+            pointer-events: none;
+        }
+
+        .card:hover::before {
+            left: 150%;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.35);
+        }
+
+        .card h2 {
+            margin-bottom: 1.5rem;
+            color: #fff;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 span {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 50%;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(138, 43, 226, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.6rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:focus-within label {
+            color: var(--secondary);
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        option {
+            background-color: #1a1638;
+            color: white;
+            padding: 10px;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.1);
+            transform: translateY(-2px);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .char-count {
+            position: absolute;
+            bottom: -22px;
+            right: 5px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            transition: color 0.3s;
+        }
+
+        .error-border {
+            border-color: var(--error) !important;
+            box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1) !important;
+        }
+
+        button {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.25);
+            margin-top: auto;
+            /* Push to bottom of card */
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+
+        button:active::after {
+            transform: translate(-50%, -50%) scale(1);
+            transition: 0s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.4);
+        }
+
+        button.btn-blue {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            box-shadow: 0 6px 20px rgba(0, 198, 255, 0.25);
+            margin-top: 1rem;
+        }
+
+        button.btn-blue:hover:not(:disabled) {
+            box-shadow: 0 10px 25px rgba(0, 198, 255, 0.4);
+        }
+
+        button:disabled {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-text {
+            transition: opacity 0.3s;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 22px;
+            height: 22px;
+            animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .result-area {
+            margin-top: 2rem;
+            display: none;
+            animation: elegantReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+
+        @keyframes elegantReveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        #audioPlayer {
+            width: 100%;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 30px;
+            outline: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            height: 40px;
+        }
+
+        #audioPlayer::-webkit-media-controls-panel {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        #audioPlayer:hover {
+            box-shadow: 0 5px 25px rgba(0, 242, 254, 0.4);
+            transform: scale(1.01);
+        }
+
+        .download-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .download-btn:hover {
+            background: var(--secondary);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.3);
+        }
+
+        /* Error Shake Animation */
+        .shake {
+            animation: shake 0.6s cubic-bezier(.36, .07, .19, .97) both;
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }
+
+        /* Ambient background orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: 1;
+            opacity: 0.4;
+            animation: float 25s infinite ease-in-out alternate;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: #8a2be2;
+            top: -100px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 450px;
+            height: 450px;
+            background: #00f2fe;
+            bottom: -150px;
+            right: -100px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 300px;
+            height: 300px;
+            background: #ff0844;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.15;
+            animation: pulse-orb 10s infinite alternate;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(50px, -50px) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-30px, 40px) scale(0.9);
+            }
+        }
+
+        @keyframes pulse-orb {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0.2;
+            }
+        }
+
+        /* Two-column layout for small inputs */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Focus glow for textareas */
+        .textarea-wrapper {
+            position: relative;
+        }
+
+        .textarea-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            right: 10px;
+            width: 10px;
+            height: 10px;
+            border-right: 2px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+        }
+
+        .success-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 242, 254, 0.9);
+            color: #000;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .success-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Interactive UI Enhancements */
+        .cast-panel {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+            animation: elegantReveal 0.4s ease forwards;
+        }
+        
+        .cast-header {
+            font-size: 0.9rem;
+            color: var(--secondary);
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .speakers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .speaker-chip {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.2s;
+        }
+        
+        .speaker-chip:hover {
+            transform: translateY(-2px);
+            background: rgba(138, 43, 226, 0.1);
+        }
+
+        .speaker-name { font-weight: 600; color: #fff; }
+        .speaker-voice { font-size: 0.75rem; color: var(--text-muted); }
+
+        .loading-steps {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 10px;
+            font-weight: 400;
+            opacity: 0;
+            transition: opacity 0.3s;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -30px;
+            white-space: nowrap;
+        }
+
+        .visualizer-container {
+            width: 100%;
+            height: 60px;
+            margin-top: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        
+        canvas#visualizer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient Background Elements -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="container">
+        <header>
+            <h1 class="title-gradient">🎙️ AI Podcast Studio</h1>
+            <p style="color: var(--text-muted); font-size: 1.2rem; font-weight: 300;">Generate stunning multilingual
+                podcasts seamlessly</p>
+        </header>
+
+        <div class="grid">
+            <!-- Left Column: Input -->
+            <div class="card">
+                <h2><span>1</span> Setup Podcast</h2>
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="title" placeholder="A catchy title for your podcast">
+                </div>
+
+                <div class="form-group">
+                    <label>Blog Content / Text</label>
+                    <div class="textarea-wrapper">
+                        <textarea id="content" placeholder="Paste your blog content here..."></textarea>
+                        <div class="char-count" id="charCount">0 characters</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Number of Hosts</label>
+                        <select id="podcastType">
+                            <option value="single">1 Host (Solo)</option>
+                            <option value="co-host" selected>2 Hosts (Dynamic Dialogue)</option>
+                            <option value="panel">3 Hosts (Panel Discussion)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Language & Style</label>
+                        <select id="language">
+                            <option value="global">English</option>
+                            <option value="indian" selected>Hindi / Hinglish</option>
+                            <option value="telugu">Telugu</option>
+                            <option value="french">French</option>
+                            <option value="spanish">Spanish</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="generateScriptBtn">
+                    <span class="btn-text">Generate AI Script</span>
+                    <div class="spinner" id="scriptSpinner"></div>
+                </button>
+            </div>
+
+            <!-- Right Column: Script & Audio -->
+            <div class="card">
+                <h2><span>2</span> Script & Audio</h2>
+
+                <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
+                    <label>Review & Edit Script</label>
+                    <textarea id="scriptOutput" style="flex-grow: 1; min-height: 200px;"
+                        placeholder="Generated script will appear here. Feel free to edit it before generating audio!"></textarea>
+                </div>
+
+                <!-- Cast & Analysis Panel -->
+                <div id="analysisPanel" class="cast-panel">
+                    <div class="cast-header">
+                        ⚡ Live Script Analysis <span id="segmentCount" style="color:var(--text-muted); font-size:0.8rem; font-weight:normal; margin-left: 8px;"></span>
+                    </div>
+                    <div class="speakers-grid" id="speakersGrid"></div>
+                </div>
+
+                <button id="generateAudioBtn" class="btn-blue">
+                    <span class="btn-text">Synthesize Podcast Audio</span>
+                    <div class="spinner" id="audioSpinner"></div>
+                    <div class="loading-steps" id="loadingSteps">Preparing system...</div>
+                </button>
+
+                <div class="result-area" id="audioResult">
+                    <h3 style="color: #00f2fe; display: flex; align-items: center; gap: 8px;">
+                        ✨ Your Podcast is Ready!
+                    </h3>
+                    <div class="visualizer-container">
+                        <canvas id="visualizer"></canvas>
+                    </div>
+                    <audio id="audioPlayer" controls crossorigin="anonymous"></audio>
+                    <a id="downloadLink" href="#" class="download-btn">
+                        📥 Download MP3
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast Notification -->
+    <div class="success-toast" id="toast">
+        ✅ <span id="toastMsg">Action completed successfully!</span>
+    </div>
+
+    <script>
+        const btnScript = document.getElementById('generateScriptBtn');
+        const btnAudio = document.getElementById('generateAudioBtn');
+        const scriptSpinner = document.getElementById('scriptSpinner');
+        const audioSpinner = document.getElementById('audioSpinner');
+        const scriptOutput = document.getElementById('scriptOutput');
+        const contentInput = document.getElementById('content');
+        const audioResult = document.getElementById('audioResult');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const downloadLink = document.getElementById('downloadLink');
+        const charCount = document.getElementById('charCount');
+        const toast = document.getElementById('toast');
+        const toastMsg = document.getElementById('toastMsg');
+        
+        const analysisPanel = document.getElementById('analysisPanel');
+        const speakersGrid = document.getElementById('speakersGrid');
+        const segmentCount = document.getElementById('segmentCount');
+        const loadingSteps = document.getElementById('loadingSteps');
+        const visualizer = document.getElementById('visualizer');
+        const canvasCtx = visualizer ? visualizer.getContext('2d') : null;
+
+        // Character count interaction
+        contentInput.addEventListener('input', () => {
+            const len = contentInput.value.length;
+            charCount.textContent = `${len} character${len !== 1 ? 's' : ''}`;
+            if (len > 0) {
+                contentInput.classList.remove('error-border');
+            }
+        });
+
+        let analyzeTimeout;
+        scriptOutput.addEventListener('input', () => {
+            if (scriptOutput.value.length > 0) {
+                scriptOutput.classList.remove('error-border');
+            }
+            
+            // Debounce analyze call
+            clearTimeout(analyzeTimeout);
+            if (scriptOutput.value.trim().length > 10) {
+                analyzeTimeout = setTimeout(fetchAnalysis, 800);
+            } else {
+                analysisPanel.style.display = 'none';
+            }
+        });
+        
+        async function fetchAnalysis() {
+            try {
+                const scriptText = scriptOutput.value;
+                const lang = document.getElementById('language').value;
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ script: scriptText, language: lang })
+                });
+                const data = await res.json();
+                
+                if (data.success && data.dialogues && data.dialogues.length > 0) {
+                    segmentCount.textContent = `(${data.total_dialogues} segments)`;
+                    speakersGrid.innerHTML = '';
+                    
+                    for (const [speaker, info] of Object.entries(data.speaker_info)) {
+                        const chip = document.createElement('div');
+                        chip.className = 'speaker-chip';
+                        chip.innerHTML = `
+                            <span class="speaker-name">${speaker}</span>
+                            <span class="speaker-voice">🎙️ ${info.voice.split('(')[0].trim()}</span>
+                        `;
+                        speakersGrid.appendChild(chip);
+                    }
+                    analysisPanel.style.display = 'block';
+                } else {
+                    analysisPanel.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Analysis error:', err);
+            }
+        }
+
+        document.getElementById('language').addEventListener('change', () => {
+            if (scriptOutput.value.trim().length > 10) {
+                fetchAnalysis();
+            }
+        });
+
+        // Toast notification helper
+        function showToast(message, duration = 3000) {
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // Add shake animation for validation
+        function triggerError(element) {
+            element.classList.add('error-border', 'shake');
+            element.focus();
+            setTimeout(() => {
+                element.classList.remove('shake');
+            }, 600);
+        }
+
+        btnScript.addEventListener('click', async () => {
+            const content = contentInput.value;
+            const title = document.getElementById('title').value;
+            const type = document.getElementById('podcastType').value;
+            const language = document.getElementById('language').value;
+
+            if (!content.trim()) {
+                triggerError(contentInput);
+                return;
+            }
+
+            // UI Loading State
+            btnScript.disabled = true;
+            scriptSpinner.style.display = 'block';
+            const btnText = btnScript.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+            btnText.textContent = 'AI is Drafting Script...';
+
+            // Add pulse effect to card
+            btnScript.closest('.card').style.boxShadow = '0 0 30px rgba(138, 43, 226, 0.4)';
+
+            try {
+                const res = await fetch('/api/ai-generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content, title, podcast_type: type, audience: language })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    // Typewriter effect for script output
+                    scriptOutput.value = '';
+                    let i = 0;
+                    const speed = 5; // ms per char
+
+                    function typeWriter() {
+                        if (i < data.script.length) {
+                            scriptOutput.value += data.script.charAt(i);
+                            i++;
+                            scriptOutput.scrollTop = scriptOutput.scrollHeight;
+                            setTimeout(typeWriter, speed);
+                        } else {
+                            showToast('Script generated! Feel free to edit.');
+                            scriptOutput.classList.remove('error-border');
+                            fetchAnalysis(); // Auto analyze once generation is complete
+                        }
+                    }
+                    typeWriter();
+
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Connection error');
+            } finally {
+                // Reset UI State
+                btnScript.disabled = false;
+                scriptSpinner.style.display = 'none';
+                btnText.textContent = originalText;
+                btnScript.closest('.card').style.boxShadow = '';
+            }
+        });
+
+        let loadingInterval;
+        btnAudio.addEventListener('click', async () => {
+            const script = scriptOutput.value;
+            if (!script.trim()) {
+                triggerError(scriptOutput);
+                return;
+            }
+
+            const language = document.getElementById('language').value;
+
+            // UI Loading State
+            btnAudio.disabled = true;
+            audioSpinner.style.display = 'block';
+            audioResult.style.display = 'none';
+            const btnText = btnAudio.querySelector('.btn-text');
+            const originalText = btnText.textContent;
+            btnText.textContent = 'Synthesizing Voices...';
+
+            // Loading steps sequence
+            loadingSteps.style.opacity = '1';
+            const steps = ["Detecting voices...", "Matching emotions...", "Synthesizing audio parallelly...", "Merging final layers...", "Applying finishing touches..."];
+            let stepIdx = 0;
+            loadingSteps.textContent = steps[0];
+            loadingInterval = setInterval(() => {
+                stepIdx = (stepIdx + 1) % steps.length;
+                loadingSteps.textContent = steps[stepIdx];
+            }, 3000);
+
+            // Add pulse effect
+            btnAudio.closest('.card').style.boxShadow = '0 0 30px rgba(0, 198, 255, 0.4)';
+
+            try {
+                const res = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ script, name: 'my_podcast', language })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    audioPlayer.src = '/api/stream/' + data.filename;
+                    downloadLink.href = '/api/download/' + data.filename;
+                    downloadLink.download = data.filename;
+
+                    audioResult.style.display = 'block';
+                    showToast('Podcast Audio Ready! 🎉');
+
+                    // Auto-play the audio slightly after showing
+                    setTimeout(() => {
+                        // Optional: audioPlayer.play().catch(e => console.log('Autoplay prevented')); 
+                    }, 500);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (e) {
+                alert('Generation failed');
+            } finally {
+                // Reset UI State
+                btnAudio.disabled = false;
+                audioSpinner.style.display = 'none';
+                btnText.textContent = originalText;
+                btnAudio.closest('.card').style.boxShadow = '';
+                clearInterval(loadingInterval);
+                loadingSteps.style.opacity = '0';
+            }
+        });
+
+        let audioCtx, analyser, dataArray, bufferLength, visualizerSource;
+        function initVisualizer() {
+            if (!visualizer) return;
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                visualizerSource = audioCtx.createMediaElementSource(audioPlayer);
+                visualizerSource.connect(analyser);
+                analyser.connect(audioCtx.destination);
+                
+                analyser.fftSize = 256;
+                bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            drawVisualizer();
+        }
+
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            if (!visualizer) return;
+            
+            const width = visualizer.clientWidth;
+            const height = visualizer.clientHeight;
+            if (visualizer.width !== width) visualizer.width = width;
+            if (visualizer.height !== height) visualizer.height = height;
+
+            analyser.getByteFrequencyData(dataArray);
+
+            canvasCtx.clearRect(0, 0, width, height);
+            canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+            canvasCtx.fillRect(0, 0, width, height);
+
+            const barWidth = (width / bufferLength) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for(let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i] / 2;
+                const r = barHeight + 25 * (i/bufferLength);
+                const g = 200 * (i/bufferLength);
+                const b = 255;
+                canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
+                canvasCtx.fillRect(x, height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+        }
+        
+        audioPlayer.addEventListener('play', () => {
+            initVisualizer();
+        });
+
+        // Add subtle entrance animations to form elements sequentially
+        document.addEventListener('DOMContentLoaded', () => {
+            const formElements = document.querySelectorAll('.form-group, button');
+            formElements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(10px)';
+                el.style.transition = 'all 0.5s ease forwards';
+
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, 400 + (index * 100));
+            });
+        });
+    </script>
+</body>
+
+</html>
