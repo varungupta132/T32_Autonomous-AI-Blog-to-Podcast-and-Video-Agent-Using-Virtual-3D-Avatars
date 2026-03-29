@@ -21,6 +21,12 @@ from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_file
 import edge_tts
 import asyncio
+import sys
+
+# Set appropriate event loop policy for Windows to prevent ThreadPoolExecutor issues
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # ============================================================================
@@ -106,7 +112,7 @@ BAD Examples (Avoid):
 ❌ "we will try to answer" (use "hum try karenge")
 ❌ "with improved quality of life" (use "better life mil sakti hai")"""
         elif audience == "telugu":
-            aud = "Telugu - Conversational, fluent, and highly engaging Telugu suitable for an interesting podcast. MUST write in Telugu script (తెలుగు లిపి). Do NOT use English letters for Telugu words."
+            aud = "Telugu - Conversational, fluent, and highly engaging Telugu suitable for an interesting podcast. MUST write in Telugu script (తెలుగు లిపి). Do NOT use English letters for Telugu words. VERY IMPORTANT: KEEP SPEAKER NAMES IN ENGLISH (e.g., Alex:, Sam:, Host:)."
         elif audience == "french":
             aud = "French - Native, fluent, and highly engaging conversational French suitable for an interesting podcast."
         elif audience == "spanish":
@@ -201,9 +207,10 @@ Write ONLY the dialogue. Start now:
         lines = []
         for line in script.split('\n'):
             line = line.strip()
-            if line and ':' in line and len(line) > 10:
+            # Relaxed length checks to allow for shorter words/sentences in Telugu
+            if line and ':' in line and len(line) > 3:
                 parts = line.split(':', 1)
-                if len(parts) == 2 and len(parts[1].strip()) > 5:
+                if len(parts) == 2 and len(parts[1].strip()) > 1:
                     lines.append(line)
 
         script = '\n\n'.join(lines)
