@@ -34,7 +34,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # ============================================================================
 
 # OpenAI API Configuration
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = os.environ.get("OPENROUTER_API_KEY", "your-openrouter-api-key-here")
 
 # EdgeTTS voices - Natural Microsoft voices (FREE!)
 VOICE_LIBRARY = {
