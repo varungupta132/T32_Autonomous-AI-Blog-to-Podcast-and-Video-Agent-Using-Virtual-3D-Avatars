@@ -1,131 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Podcast Studio</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #8a2be2;
-            --primary-hover: #9d4edd;
-            --secondary: #00f2fe;
-            --secondary-hover: #4facfe;
-            --bg-base: #0f0c29;
-            --surface: rgba(255, 255, 255, 0.05);
-            --surface-hover: rgba(255, 255, 255, 0.1);
-            --text-main: #ffffff;
-            --text-muted: #b0a8ba;
-            --border: rgba(255, 255, 255, 0.15);
-            --error: #ff4757;
+            --primary: #FF4E00; /* Ember/Coral Orange */
+            --primary-hover: #E03E00;
+            --accent: #FF8C00;
+            --bg-base: #0a0a0a;
+            --surface: rgba(30, 30, 30, 0.6);
+            --surface-hover: rgba(45, 45, 45, 0.8);
+            --text-main: #f8f8f8;
+            --text-muted: #9e9e9e;
+            --border: rgba(255, 255, 255, 0.08);
+            --glass-blur: blur(20px);
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background-color: var(--bg-base);
             color: var(--text-main);
             min-height: 100vh;
             line-height: 1.6;
             overflow-x: hidden;
+            position: relative;
         }
 
-        @keyframes gradientBG {
-            0% {
-                background-position: 0% 50%;
-            }
-
-            50% {
-                background-position: 100% 50%;
-            }
-
-            100% {
-                background-position: 0% 50%;
-            }
+        /* Animated Background Orbs */
+        .bg-orbs {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: #000;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: #FF4E00;
+            top: -100px; left: -100px;
+            animation-duration: 25s;
+        }
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: #FF8C00;
+            bottom: -200px; right: -100px;
+            animation-delay: -5s;
+        }
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: #CC2200;
+            top: 40%; left: 60%;
+            animation-duration: 30s;
         }
 
-        h1,
-        h2,
-        h3,
-        h4 {
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        h1, h2, h3, h4 {
             font-family: 'Outfit', sans-serif;
             font-weight: 800;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 3rem auto;
+            max-width: 1300px;
+            margin: 2rem auto;
             padding: 2.5rem;
             background: var(--surface);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
             border-radius: 24px;
             border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
             position: relative;
-            z-index: 10;
+            z-index: 1;
         }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(40px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 3.5rem;
-            animation: fadeIn 1.2s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
-        }
+        header { text-align: center; margin-bottom: 3rem; }
 
         .title-gradient {
-            background: linear-gradient(to right, #00f2fe, #4facfe, #8a2be2, #00f2fe);
-            background-size: 200% auto;
+            background: linear-gradient(to right, #FF8C00, #FF4E00, #FF2000);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-size: 3.5rem;
             margin-bottom: 0.5rem;
-            display: inline-block;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            animation: shine 4s linear infinite;
-        }
-
-        @keyframes shine {
-            to {
-                background-position: 200% center;
-            }
-        }
-
-        .title-gradient:hover {
-            transform: scale(1.03);
-            text-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
         }
 
         .grid {
@@ -133,938 +104,480 @@
             grid-template-columns: 1fr 1fr;
             gap: 2.5rem;
         }
-
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            .container {
-                margin: 1rem;
-                padding: 1.5rem;
-            }
-
-            .title-gradient {
-                font-size: 2.5rem;
-            }
-        }
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
 
         .card {
-            background: rgba(0, 0, 0, 0.25);
+            background: rgba(15, 15, 15, 0.4);
             border-radius: 20px;
             padding: 2rem;
             border: 1px solid var(--border);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
         }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.03), transparent);
-            transform: skewX(-20deg);
-            transition: 0.6s;
-            pointer-events: none;
-        }
-
-        .card:hover::before {
-            left: 150%;
-        }
-
         .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-            border-color: rgba(255, 255, 255, 0.25);
-            background: rgba(0, 0, 0, 0.35);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 78, 0, 0.3);
         }
 
-        .card h2 {
-            margin-bottom: 1.5rem;
-            color: #fff;
-            font-size: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card h2 span {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            background: var(--primary);
-            border-radius: 50%;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 10px rgba(138, 43, 226, 0.3);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-            position: relative;
-        }
-
+        .form-group { margin-bottom: 1.5rem; }
         label {
-            display: block;
-            margin-bottom: 0.6rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            font-size: 0.95rem;
-            transition: color 0.3s ease;
+            display: block; margin-bottom: 0.6rem;
+            color: #d1d1d1; font-weight: 500; font-size: 0.95rem;
         }
 
-        .form-group:focus-within label {
-            color: var(--secondary);
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
-        }
-
-        input,
-        textarea,
-        select {
+        input, textarea, select {
             width: 100%;
             padding: 1rem 1.2rem;
-            background: rgba(255, 255, 255, 0.03);
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--border);
             border-radius: 12px;
             color: white;
             font-family: 'Inter', sans-serif;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            font-size: 1rem;
-            line-height: 1.5;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+        option { background-color: #1a1a1a; color: white; }
 
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-
-        option {
-            background-color: #1a1638;
-            color: white;
-            padding: 10px;
-        }
-
-        input:focus,
-        textarea:focus,
-        select:focus {
+        input:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: var(--secondary);
-            background: rgba(255, 255, 255, 0.08);
-            box-shadow: 0 0 0 4px rgba(0, 242, 254, 0.1);
-            transform: translateY(-2px);
-        }
-
-        input::placeholder,
-        textarea::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .char-count {
-            position: absolute;
-            bottom: -22px;
-            right: 5px;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            transition: color 0.3s;
-        }
-
-        .error-border {
-            border-color: var(--error) !important;
-            box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.1) !important;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(255, 78, 0, 0.15);
         }
 
         button {
             width: 100%;
             padding: 1.2rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            background: var(--primary);
             color: white;
             border: none;
             border-radius: 12px;
             font-weight: 600;
             font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 12px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.25);
-            margin-top: auto;
-            /* Push to bottom of card */
         }
-
         button::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            pointer-events: none;
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); animation: shine 3s infinite reverse;
         }
-
-        button:active::after {
-            transform: translate(-50%, -50%) scale(1);
-            transition: 0s;
-        }
+        @keyframes shine { 100% { left: 200%; } }
 
         button:hover:not(:disabled) {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.4);
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 78, 0, 0.4);
         }
-
-        button.btn-blue {
-            background: linear-gradient(135deg, #00c6ff, #0072ff);
-            box-shadow: 0 6px 20px rgba(0, 198, 255, 0.25);
-            margin-top: 1rem;
-        }
-
-        button.btn-blue:hover:not(:disabled) {
-            box-shadow: 0 10px 25px rgba(0, 198, 255, 0.4);
-        }
-
         button:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.4);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
+            background: #333; cursor: not-allowed; color: #888;
         }
+        button:disabled::after { display: none; }
 
-        .btn-text {
-            transition: opacity 0.3s;
+        /* Fancy Loader Sequence */
+        .stage-loader {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 1rem; border-radius: 12px; background: rgba(0,0,0,0.2); margin-top: 1rem;
         }
-
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 22px;
-            height: 22px;
-            animation: spin 1s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
-            display: none;
+        .stage-loader.active { display: flex; animation: fadeIn 0.4s ease; }
+        .stage-text { margin-top: 10px; font-weight: 500; color: var(--accent); }
+        .bouncing-bars { display: flex; gap: 4px; }
+        .bar {
+            width: 4px; height: 16px; background: var(--primary); border-radius: 4px;
+            animation: bounce 1s infinite alternate;
         }
+        .bar:nth-child(2) { animation-delay: 0.2s; }
+        .bar:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0% { height: 16px; } 100% { height: 32px; background: #FF8C00; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
+        /* Speaker Analysis Roster */
+        .speakers-roster {
+            display: flex; flex-direction: column; gap: 10px; margin-top: 1.5rem; display: none;
         }
-
-        .result-area {
-            margin-top: 2rem;
-            display: none;
-            animation: elegantReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 1.5rem;
-            border-radius: 16px;
-            border: 1px solid rgba(0, 242, 254, 0.2);
+        .speakers-roster.active { display: flex; animation: fadeIn 0.5s ease; }
+        .speaker-card {
+            display: flex; align-items: center; gap: 15px; padding: 12px;
+            background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border);
+            border-radius: 12px; transition: transform 0.2s;
         }
-
-        @keyframes elegantReveal {
-            from {
-                opacity: 0;
-                transform: translateY(20px) scale(0.98);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .speaker-card:hover { transform: scale(1.02); border-color: rgba(255, 255, 255, 0.2); }
+        .avatar {
+            width: 45px; height: 45px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem; box-shadow: 0 0 10px rgba(255, 78, 0, 0.3);
         }
+        .speaker-details h4 { margin-bottom: 2px; color: #fff; }
+        .speaker-details p { font-size: 0.85rem; color: var(--text-muted); }
 
-        #audioPlayer {
-            width: 100%;
-            margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            border-radius: 30px;
-            outline: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
-            height: 40px;
+        /* Audio Visualizer */
+        .result-area { margin-top: 2rem; display: none; text-align: center; }
+        .result-area.active { display: block; animation: fadeIn 0.6s ease; }
+        #visualizer {
+            width: 100%; height: 100px;
+            background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 1rem;
+            border: 1px solid var(--border); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
         }
-
-        #audioPlayer::-webkit-media-controls-panel {
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        #audioPlayer:hover {
-            box-shadow: 0 5px 25px rgba(0, 242, 254, 0.4);
-            transform: scale(1.01);
-        }
-
+        #audioPlayer { width: 100%; border-radius: 30px; outline: none; }
+        
         .download-btn {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            padding: 1rem;
-            background: rgba(0, 242, 254, 0.1);
-            border: 1px solid var(--secondary);
-            color: var(--secondary);
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 1.5rem; padding: 0.8rem 1.5rem;
+            background: transparent; color: var(--accent);
+            border: 2px solid var(--accent); border-radius: 30px;
+            text-decoration: none; font-weight: 600; transition: all 0.3s;
         }
+        .download-btn:hover { background: var(--accent); color: #000; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4); }
 
-        .download-btn:hover {
-            background: var(--secondary);
-            color: #000;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.3);
-        }
-
-        /* Error Shake Animation */
-        .shake {
-            animation: shake 0.6s cubic-bezier(.36, .07, .19, .97) both;
-        }
-
-        @keyframes shake {
-
-            10%,
-            90% {
-                transform: translate3d(-1px, 0, 0);
-            }
-
-            20%,
-            80% {
-                transform: translate3d(2px, 0, 0);
-            }
-
-            30%,
-            50%,
-            70% {
-                transform: translate3d(-4px, 0, 0);
-            }
-
-            40%,
-            60% {
-                transform: translate3d(4px, 0, 0);
-            }
-        }
-
-        /* Ambient background orbs */
-        .orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            z-index: 1;
-            opacity: 0.4;
-            animation: float 25s infinite ease-in-out alternate;
-            pointer-events: none;
-        }
-
-        .orb-1 {
-            width: 400px;
-            height: 400px;
-            background: #8a2be2;
-            top: -100px;
-            left: -100px;
-        }
-
-        .orb-2 {
-            width: 450px;
-            height: 450px;
-            background: #00f2fe;
-            bottom: -150px;
-            right: -100px;
-            animation-delay: -5s;
-        }
-
-        .orb-3 {
-            width: 300px;
-            height: 300px;
-            background: #ff0844;
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            opacity: 0.15;
-            animation: pulse-orb 10s infinite alternate;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            50% {
-                transform: translate(50px, -50px) scale(1.1);
-            }
-
-            100% {
-                transform: translate(-30px, 40px) scale(0.9);
-            }
-        }
-
-        @keyframes pulse-orb {
-            0% {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 0.1;
-            }
-
-            100% {
-                transform: translate(-50%, -50%) scale(1.5);
-                opacity: 0.2;
-            }
-        }
-
-        /* Two-column layout for small inputs */
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-
-        @media (max-width: 600px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Focus glow for textareas */
-        .textarea-wrapper {
-            position: relative;
-        }
-
-        .textarea-wrapper::after {
-            content: '';
-            position: absolute;
-            bottom: 6px;
-            right: 10px;
-            width: 10px;
-            height: 10px;
-            border-right: 2px solid rgba(255, 255, 255, 0.2);
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-            pointer-events: none;
-        }
-
-        .success-toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: rgba(0, 242, 254, 0.9);
-            color: #000;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            font-weight: 600;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .success-toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* Interactive UI Enhancements */
-        .cast-panel {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            display: none;
-            animation: elegantReveal 0.4s ease forwards;
-        }
-        
-        .cast-header {
-            font-size: 0.9rem;
-            color: var(--secondary);
-            margin-bottom: 0.8rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .speakers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-        }
-
-        .speaker-chip {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 8px;
-            border-left: 3px solid var(--primary);
-            font-size: 0.85rem;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            transition: transform 0.2s;
-        }
-        
-        .speaker-chip:hover {
-            transform: translateY(-2px);
-            background: rgba(138, 43, 226, 0.1);
-        }
-
-        .speaker-name { font-weight: 600; color: #fff; }
-        .speaker-voice { font-size: 0.75rem; color: var(--text-muted); }
-
-        .loading-steps {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-left: 10px;
-            font-weight: 400;
-            opacity: 0;
-            transition: opacity 0.3s;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: -30px;
-            white-space: nowrap;
-        }
-
-        .visualizer-container {
-            width: 100%;
-            height: 60px;
-            margin-top: 1rem;
-            border-radius: 12px;
-            overflow: hidden;
-            background: rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-        
-        canvas#visualizer {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+        .hidden { display: none !important; }
     </style>
 </head>
-
 <body>
-    <!-- Ambient Background Elements -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
 
     <div class="container">
         <header>
             <h1 class="title-gradient">🎙️ AI Podcast Studio</h1>
-            <p style="color: var(--text-muted); font-size: 1.2rem; font-weight: 300;">Generate stunning multilingual
-                podcasts seamlessly</p>
+            <p style="color: var(--text-muted); font-size: 1.25rem;">Stunning, multilingual, and emotionally expressive.</p>
         </header>
 
         <div class="grid">
             <!-- Left Column: Input -->
             <div class="card">
-                <h2><span>1</span> Setup Podcast</h2>
-
+                <h2 style="color: white; margin-bottom: 20px;">1. Blueprint</h2>
                 <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" id="title" placeholder="A catchy title for your podcast">
+                    <label>Podcast Topic or Title</label>
+                    <input type="text" id="title" placeholder="E.g., The Future of Artificial Intelligence">
                 </div>
-
                 <div class="form-group">
-                    <label>Blog Content / Text</label>
-                    <div class="textarea-wrapper">
-                        <textarea id="content" placeholder="Paste your blog content here..."></textarea>
-                        <div class="char-count" id="charCount">0 characters</div>
-                    </div>
+                    <label>Blog Content / Source Material</label>
+                    <textarea id="content" rows="6" placeholder="Paste the full text here to be transformed into a dynamic conversation..."></textarea>
                 </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Number of Hosts</label>
+                <div class="grid" style="gap: 1rem; grid-template-columns: 1fr 1fr; margin-bottom: 1rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Format</label>
                         <select id="podcastType">
                             <option value="single">1 Host (Solo)</option>
-                            <option value="co-host" selected>2 Hosts (Dynamic Dialogue)</option>
-                            <option value="panel">3 Hosts (Panel Discussion)</option>
+                            <option value="co-host" selected>2 Hosts (Dialogue)</option>
+                            <option value="panel">3 Hosts (Panel)</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Language & Style</label>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Language & Vibe</label>
                         <select id="language">
-                            <option value="global">English</option>
-                            <option value="indian" selected>Hindi / Hinglish</option>
+                            <option value="global">English (Global)</option>
+                            <option value="indian" selected>Hinglish (India)</option>
                             <option value="telugu">Telugu</option>
                             <option value="french">French</option>
                             <option value="spanish">Spanish</option>
                         </select>
                     </div>
                 </div>
-
+                <!-- Background Music Selection -->
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Background Vibe</label>
+                    <select id="bgMusic">
+                        <option value="none">None</option>
+                        <option value="intro">Podcast intro</option>
+                        <option value="soft" selected>Soft music</option>
+                        <option value="news">News style</option>
+                    </select>
+                </div>
+                
                 <button id="generateScriptBtn">
-                    <span class="btn-text">Generate AI Script</span>
-                    <div class="spinner" id="scriptSpinner"></div>
+                    <span id="btnScriptText">Ignite AI Generation</span>
                 </button>
+                
+                <div class="stage-loader" id="scriptLoader">
+                    <div class="bouncing-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                    <div class="stage-text" id="scriptStageText">Crafting brilliant dialogues...</div>
+                </div>
             </div>
 
             <!-- Right Column: Script & Audio -->
             <div class="card">
-                <h2><span>2</span> Script & Audio</h2>
-
-                <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
-                    <label>Review & Edit Script</label>
-                    <textarea id="scriptOutput" style="flex-grow: 1; min-height: 200px;"
-                        placeholder="Generated script will appear here. Feel free to edit it before generating audio!"></textarea>
+                <h2 style="color: white; margin-bottom: 20px;">2. Studio</h2>
+                <div class="form-group">
+                    <label>Generated Script</label>
+                    <textarea id="scriptOutput" rows="6" placeholder="Your generated script will surface here. Feel free to tweak it!"></textarea>
                 </div>
-
-                <!-- Cast & Analysis Panel -->
-                <div id="analysisPanel" class="cast-panel">
-                    <div class="cast-header">
-                        ⚡ Live Script Analysis <span id="segmentCount" style="color:var(--text-muted); font-size:0.8rem; font-weight:normal; margin-left: 8px;"></span>
-                    </div>
-                    <div class="speakers-grid" id="speakersGrid"></div>
+                
+                <!-- Dynamic Speaker Roster -->
+                <div class="speakers-roster" id="speakerRoster">
+                    <h3 style="font-size: 1rem; color: #fff; margin-bottom: 5px;">🎤 Casting Roster</h3>
+                    <div id="rosterContainer"></div>
                 </div>
-
-                <button id="generateAudioBtn" class="btn-blue">
-                    <span class="btn-text">Synthesize Podcast Audio</span>
-                    <div class="spinner" id="audioSpinner"></div>
-                    <div class="loading-steps" id="loadingSteps">Preparing system...</div>
+                
+                <button id="generateAudioBtn" style="margin-top: 1.5rem; background: linear-gradient(45deg, #FF8C00, #FF4E00);" class="hidden">
+                    <span id="btnAudioText">Synthesize Voices & Render</span>
                 </button>
 
+                <div class="stage-loader" id="audioLoader">
+                    <div class="bouncing-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                    <div class="stage-text" id="audioStageText">Warming up vocal chords...</div>
+                </div>
+                
                 <div class="result-area" id="audioResult">
-                    <h3 style="color: #00f2fe; display: flex; align-items: center; gap: 8px;">
-                        ✨ Your Podcast is Ready!
-                    </h3>
-                    <div class="visualizer-container">
-                        <canvas id="visualizer"></canvas>
-                    </div>
+                    <h3 style="margin-bottom: 1rem; color: var(--accent);">Your Masterpiece is Ready 🎧</h3>
+                    <canvas id="visualizer"></canvas>
                     <audio id="audioPlayer" controls crossorigin="anonymous"></audio>
-                    <a id="downloadLink" href="#" class="download-btn">
-                        📥 Download MP3
-                    </a>
+                    <a id="downloadLink" href="#" class="download-btn">Download MP3 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Success Toast Notification -->
-    <div class="success-toast" id="toast">
-        ✅ <span id="toastMsg">Action completed successfully!</span>
-    </div>
-
     <script>
+        // DOM Elements
         const btnScript = document.getElementById('generateScriptBtn');
         const btnAudio = document.getElementById('generateAudioBtn');
-        const scriptSpinner = document.getElementById('scriptSpinner');
-        const audioSpinner = document.getElementById('audioSpinner');
+        const scriptLoader = document.getElementById('scriptLoader');
+        const audioLoader = document.getElementById('audioLoader');
+        const scriptStageText = document.getElementById('scriptStageText');
+        const audioStageText = document.getElementById('audioStageText');
+        
         const scriptOutput = document.getElementById('scriptOutput');
-        const contentInput = document.getElementById('content');
+        const speakerRoster = document.getElementById('speakerRoster');
+        const rosterContainer = document.getElementById('rosterContainer');
+        
         const audioResult = document.getElementById('audioResult');
         const audioPlayer = document.getElementById('audioPlayer');
         const downloadLink = document.getElementById('downloadLink');
-        const charCount = document.getElementById('charCount');
-        const toast = document.getElementById('toast');
-        const toastMsg = document.getElementById('toastMsg');
+        const btnScriptText = document.getElementById('btnScriptText');
+        const btnAudioText = document.getElementById('btnAudioText');
+
+        // Audio Visualizer Setup
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        let audioContext, analyser, source, dataArray;
         
-        const analysisPanel = document.getElementById('analysisPanel');
-        const speakersGrid = document.getElementById('speakersGrid');
-        const segmentCount = document.getElementById('segmentCount');
-        const loadingSteps = document.getElementById('loadingSteps');
-        const visualizer = document.getElementById('visualizer');
-        const canvasCtx = visualizer ? visualizer.getContext('2d') : null;
-
-        // Character count interaction
-        contentInput.addEventListener('input', () => {
-            const len = contentInput.value.length;
-            charCount.textContent = `${len} character${len !== 1 ? 's' : ''}`;
-            if (len > 0) {
-                contentInput.classList.remove('error-border');
-            }
-        });
-
-        let analyzeTimeout;
-        scriptOutput.addEventListener('input', () => {
-            if (scriptOutput.value.length > 0) {
-                scriptOutput.classList.remove('error-border');
-            }
+        function setupVisualizer() {
+            // Setup sizing
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
             
-            // Debounce analyze call
-            clearTimeout(analyzeTimeout);
-            if (scriptOutput.value.trim().length > 10) {
-                analyzeTimeout = setTimeout(fetchAnalysis, 800);
-            } else {
-                analysisPanel.style.display = 'none';
-            }
-        });
-        
-        async function fetchAnalysis() {
+            // Only set up once
+            if(audioContext) return;
             try {
-                const scriptText = scriptOutput.value;
-                const lang = document.getElementById('language').value;
-                const res = await fetch('/api/analyze', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ script: scriptText, language: lang })
-                });
-                const data = await res.json();
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                source = audioContext.createMediaElementSource(audioPlayer);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
                 
-                if (data.success && data.dialogues && data.dialogues.length > 0) {
-                    segmentCount.textContent = `(${data.total_dialogues} segments)`;
-                    speakersGrid.innerHTML = '';
-                    
-                    for (const [speaker, info] of Object.entries(data.speaker_info)) {
-                        const chip = document.createElement('div');
-                        chip.className = 'speaker-chip';
-                        chip.innerHTML = `
-                            <span class="speaker-name">${speaker}</span>
-                            <span class="speaker-voice">🎙️ ${info.voice.split('(')[0].trim()}</span>
-                        `;
-                        speakersGrid.appendChild(chip);
-                    }
-                    analysisPanel.style.display = 'block';
-                } else {
-                    analysisPanel.style.display = 'none';
-                }
-            } catch (err) {
-                console.error('Analysis error:', err);
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                drawVisualizer();
+            } catch (e) {
+                console.warn("Audio Context unable to mount (browser security restriction until interaction)");
             }
         }
 
-        document.getElementById('language').addEventListener('change', () => {
-            if (scriptOutput.value.trim().length > 10) {
-                fetchAnalysis();
+        // Must resume context on play if it was suspended
+        audioPlayer.addEventListener('play', () => {
+            setupVisualizer();
+            if(audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
             }
         });
 
-        // Toast notification helper
-        function showToast(message, duration = 3000) {
-            toastMsg.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            if(!analyser) return;
+
+            analyser.getByteFrequencyData(dataArray);
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            let barHeight;
+            let x = 0;
+            
+            for(let i = 0; i < dataArray.length; i++) {
+                barHeight = dataArray[i] / 2;
+                
+                // Ember-like gradient depending on intensity
+                let r = barHeight + (25 * (i/dataArray.length));
+                let g = 100 * (i/dataArray.length);
+                let b = 50;
+                
+                ctx.fillStyle = `rgb(${r+100},${g},${b})`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
+            }
         }
 
-        // Add shake animation for validation
-        function triggerError(element) {
-            element.classList.add('error-border', 'shake');
-            element.focus();
-            setTimeout(() => {
-                element.classList.remove('shake');
-            }, 600);
+        // Timed loading text flipper
+        function animateLoading(elem, messages) {
+            let i = 0;
+            elem.innerText = messages[0];
+            const interval = setInterval(() => {
+                i = (i + 1) % messages.length;
+                elem.innerText = messages[i];
+            }, 2500);
+            return interval;
         }
 
         btnScript.addEventListener('click', async () => {
-            const content = contentInput.value;
+            const content = document.getElementById('content').value;
             const title = document.getElementById('title').value;
             const type = document.getElementById('podcastType').value;
             const language = document.getElementById('language').value;
 
-            if (!content.trim()) {
-                triggerError(contentInput);
-                return;
+            if (!content) {
+                alert("Please provide some source content first!"); return;
             }
 
-            // UI Loading State
+            // UI State change
             btnScript.disabled = true;
-            scriptSpinner.style.display = 'block';
-            const btnText = btnScript.querySelector('.btn-text');
-            const originalText = btnText.textContent;
-            btnText.textContent = 'AI is Drafting Script...';
+            btnScriptText.innerText = "Generating...";
+            scriptLoader.classList.add('active');
+            speakerRoster.classList.remove('active');
+            btnAudio.classList.add('hidden');
+            audioResult.classList.remove('active');
+            scriptOutput.value = "";
 
-            // Add pulse effect to card
-            btnScript.closest('.card').style.boxShadow = '0 0 30px rgba(138, 43, 226, 0.4)';
+            const loaderInt = animateLoading(scriptStageText, [
+                "Drafting brilliant dialogues...",
+                "Injecting human emotion...",
+                "Structuring the narrative...",
+                "Final polish before rendering..."
+            ]);
 
             try {
                 const res = await fetch('/api/ai-generate', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ content, title, podcast_type: type, audience: language })
                 });
                 const data = await res.json();
-
-                if (data.success) {
-                    // Typewriter effect for script output
-                    scriptOutput.value = '';
-                    let i = 0;
-                    const speed = 5; // ms per char
-
-                    function typeWriter() {
-                        if (i < data.script.length) {
-                            scriptOutput.value += data.script.charAt(i);
-                            i++;
-                            scriptOutput.scrollTop = scriptOutput.scrollHeight;
-                            setTimeout(typeWriter, speed);
-                        } else {
-                            showToast('Script generated! Feel free to edit.');
-                            scriptOutput.classList.remove('error-border');
-                            fetchAnalysis(); // Auto analyze once generation is complete
-                        }
-                    }
-                    typeWriter();
-
+                
+                if(data.success) {
+                    scriptOutput.value = data.script;
+                    
+                    // Trigger Speaker Analysis automatically
+                    await analyzeScript(data.script, language);
                 } else {
                     alert('Error: ' + data.error);
                 }
             } catch (err) {
                 alert('Connection error');
             } finally {
-                // Reset UI State
+                clearInterval(loaderInt);
                 btnScript.disabled = false;
-                scriptSpinner.style.display = 'none';
-                btnText.textContent = originalText;
-                btnScript.closest('.card').style.boxShadow = '';
+                btnScriptText.innerText = "Regenerate AI Script";
+                scriptLoader.classList.remove('active');
             }
         });
 
-        let loadingInterval;
+        async function analyzeScript(script, language) {
+            try {
+                scriptStageText.innerText = "Analyzing cast & voices...";
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ script, language })
+                });
+                const data = await res.json();
+                
+                if(data.success && data.speakers > 0) {
+                    rosterContainer.innerHTML = '';
+                    
+                    for (const [name, info] of Object.entries(data.speaker_info)) {
+                        const card = document.createElement('div');
+                        card.className = 'speaker-card';
+                        
+                        // Pick first letter of name for Avatar
+                        const initial = name.charAt(0).toUpperCase();
+                        
+                        card.innerHTML = `
+                            <div class="avatar">${initial}</div>
+                            <div class="speaker-details">
+                                <h4>${name}</h4>
+                                <p>${info.voice} — ${info.engine}</p>
+                            </div>
+                        `;
+                        rosterContainer.appendChild(card);
+                    }
+                    
+                    speakerRoster.classList.add('active');
+                    btnAudio.classList.remove('hidden'); // Reveal audio render button
+                }
+            } catch(e) {
+                console.error("Failed to analyze script", e);
+                // Still allow rendering even if analysis fails visually
+                btnAudio.classList.remove('hidden');
+            }
+        }
+
         btnAudio.addEventListener('click', async () => {
             const script = scriptOutput.value;
-            if (!script.trim()) {
-                triggerError(scriptOutput);
-                return;
-            }
-
+            if(!script) return;
+            
             const language = document.getElementById('language').value;
+            const bgMusic = document.getElementById('bgMusic').value;
 
-            // UI Loading State
             btnAudio.disabled = true;
-            audioSpinner.style.display = 'block';
-            audioResult.style.display = 'none';
-            const btnText = btnAudio.querySelector('.btn-text');
-            const originalText = btnText.textContent;
-            btnText.textContent = 'Synthesizing Voices...';
+            btnAudioText.innerText = "Rendering...";
+            audioLoader.classList.add('active');
+            audioResult.classList.remove('active');
 
-            // Loading steps sequence
-            loadingSteps.style.opacity = '1';
-            const steps = ["Detecting voices...", "Matching emotions...", "Synthesizing audio parallelly...", "Merging final layers...", "Applying finishing touches..."];
-            let stepIdx = 0;
-            loadingSteps.textContent = steps[0];
-            loadingInterval = setInterval(() => {
-                stepIdx = (stepIdx + 1) % steps.length;
-                loadingSteps.textContent = steps[stepIdx];
-            }, 3000);
-
-            // Add pulse effect
-            btnAudio.closest('.card').style.boxShadow = '0 0 30px rgba(0, 198, 255, 0.4)';
+            const loaderInt = animateLoading(audioStageText, [
+                "Allocating voice vectors...",
+                "Synthesizing speech segments...",
+                "Applying emotional modulation...",
+                "Stitching and mastering audio...",
+                "Finalizing MP3 export..."
+            ]);
 
             try {
                 const res = await fetch('/api/generate', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ script, name: 'my_podcast', language })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ script, name: 'mastered_podcast', language, bg_music: bgMusic })
                 });
                 const data = await res.json();
-
-                if (data.success) {
-                    audioPlayer.src = '/api/stream/' + data.filename;
+                
+                if(data.success) {
+                    // Force cache bypass by appending timestamp so re-runs play updated audio
+                    audioPlayer.src = '/api/stream/' + data.filename + '?t=' + Date.now();
                     downloadLink.href = '/api/download/' + data.filename;
-                    downloadLink.download = data.filename;
-
-                    audioResult.style.display = 'block';
-                    showToast('Podcast Audio Ready! 🎉');
-
-                    // Auto-play the audio slightly after showing
-                    setTimeout(() => {
-                        // Optional: audioPlayer.play().catch(e => console.log('Autoplay prevented')); 
-                    }, 500);
+                    downloadLink.download = "My_AI_Podcast.mp3";
+                    
+                    audioResult.classList.add('active');
                 } else {
                     alert('Error: ' + data.error);
                 }
-            } catch (e) {
+            } catch(e) {
                 alert('Generation failed');
             } finally {
-                // Reset UI State
+                clearInterval(loaderInt);
                 btnAudio.disabled = false;
-                audioSpinner.style.display = 'none';
-                btnText.textContent = originalText;
-                btnAudio.closest('.card').style.boxShadow = '';
-                clearInterval(loadingInterval);
-                loadingSteps.style.opacity = '0';
+                btnAudioText.innerText = "Synthesize Podcast Audio";
+                audioLoader.classList.remove('active');
             }
         });
-
-        let audioCtx, analyser, dataArray, bufferLength, visualizerSource;
-        function initVisualizer() {
-            if (!visualizer) return;
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                analyser = audioCtx.createAnalyser();
-                visualizerSource = audioCtx.createMediaElementSource(audioPlayer);
-                visualizerSource.connect(analyser);
-                analyser.connect(audioCtx.destination);
-                
-                analyser.fftSize = 256;
-                bufferLength = analyser.frequencyBinCount;
-                dataArray = new Uint8Array(bufferLength);
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            drawVisualizer();
-        }
-
-        function drawVisualizer() {
-            requestAnimationFrame(drawVisualizer);
-            if (!visualizer) return;
-            
-            const width = visualizer.clientWidth;
-            const height = visualizer.clientHeight;
-            if (visualizer.width !== width) visualizer.width = width;
-            if (visualizer.height !== height) visualizer.height = height;
-
-            analyser.getByteFrequencyData(dataArray);
-
-            canvasCtx.clearRect(0, 0, width, height);
-            canvasCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-            canvasCtx.fillRect(0, 0, width, height);
-
-            const barWidth = (width / bufferLength) * 2.5;
-            let barHeight;
-            let x = 0;
-
-            for(let i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i] / 2;
-                const r = barHeight + 25 * (i/bufferLength);
-                const g = 200 * (i/bufferLength);
-                const b = 255;
-                canvasCtx.fillStyle = `rgb(${r},${g},${b})`;
-                canvasCtx.fillRect(x, height - barHeight, barWidth, barHeight);
-                x += barWidth + 1;
-            }
-        }
         
-        audioPlayer.addEventListener('play', () => {
-            initVisualizer();
+        // Setup initial canvas sizing
+        window.addEventListener('resize', () => {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
         });
-
-        // Add subtle entrance animations to form elements sequentially
-        document.addEventListener('DOMContentLoaded', () => {
-            const formElements = document.querySelectorAll('.form-group, button');
-            formElements.forEach((el, index) => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(10px)';
-                el.style.transition = 'all 0.5s ease forwards';
-
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                }, 400 + (index * 100));
-            });
-        });
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
     </script>
 </body>
-
 </html>

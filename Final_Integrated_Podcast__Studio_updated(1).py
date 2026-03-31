@@ -16,10 +16,35 @@ Features:
 import re
 import json
 import os
+import urllib.request
 from pathlib import Path
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, send_file
 import edge_tts
+
+# Audio Setup
+BGM_DIR = Path("bgm")
+BGM_DIR.mkdir(exist_ok=True)
+BGM_TRACKS = {
+    "intro": "https://cdn.pixabay.com/download/audio/2022/10/25/audio_2e2a3c74eb.mp3",
+    "soft": "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3",
+    "news": "https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb630cc098.mp3"
+}
+
+def ensure_bgm_exists():
+    for name, url in BGM_TRACKS.items():
+        file_path = BGM_DIR / f"{name}.mp3"
+        if not file_path.exists():
+            try:
+                print(f"Downloading stock BGM track: {name}...")
+                req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                with urllib.request.urlopen(req) as response, open(file_path, 'wb') as out_file:
+                    out_file.write(response.read())
+            except Exception as e:
+                print(f"Failed to download {name} BGM: {e}")
+
+# Call init
+ensure_bgm_exists()
 import asyncio
 import sys
 
@@ -161,7 +186,7 @@ Write ONLY the dialogue. Start now:
 """
 
         response = client.chat.completions.create(
-            model="google/gemini-2.0-flash-lite-preview-02-05:free",
+            model="google/gemini-2.0-flash-lite-001",
             messages=[
                 {
                     'role': 'system',
@@ -318,14 +343,55 @@ def generate_audio_segment(speaker_voice, text, output_path):
         print(f"Error generating audio: {str(e)}")
         raise
 
-def merge_audio_files(audio_files, output_file):
-    """Merge audio files"""
-    with open(output_file, 'wb') as outfile:
+def merge_audio_files(audio_files, output_file, bg_music=None):
+    """Merge audio files and optionally mix background music"""
+    try:
+        from pydub import AudioSegment
+        import imageio_ffmpeg
+        
+        # Wire pydub up to the embedded ffmpeg executable
+        AudioSegment.converter = imageio_ffmpeg.get_ffmpeg_exe()
+        
+        # 1. Concatenate speech
+        combined_speech = AudioSegment.empty()
         for mp3_file in audio_files:
             if os.path.exists(mp3_file):
-                with open(mp3_file, 'rb') as infile:
-                    outfile.write(infile.read())
-    return output_file
+                segment = AudioSegment.from_mp3(mp3_file)
+                combined_speech += segment
+                
+        # 2. Mix BGM if selected
+        if bg_music and bg_music in BGM_TRACKS:
+            bgm_path = BGM_DIR / f"{bg_music}.mp3"
+            if bgm_path.exists():
+                print(f"🎧 Mixing background music: {bg_music}...")
+                bgm = AudioSegment.from_mp3(bgm_path)
+                
+                # Loop BGM to match speech duration
+                while len(bgm) < len(combined_speech):
+                    bgm += bgm
+                    
+                # Trim to exact length
+                bgm = bgm[:len(combined_speech)]
+                
+                # Reduce volume heavily (-18dB) so it stays background
+                bgm = bgm - 18 
+                
+                # Overlay
+                combined_speech = combined_speech.overlay(bgm)
+                
+        # 3. Export combined output
+        combined_speech.export(output_file, format="mp3")
+        return output_file
+        
+    except Exception as e:
+        print(f"✗ Pydub mixing failed: {e}. Falling back to simple byte concatenation.")
+        # Fallback to simple byte concatenation
+        with open(output_file, 'wb') as outfile:
+            for mp3_file in audio_files:
+                if os.path.exists(mp3_file):
+                    with open(mp3_file, 'rb') as infile:
+                        outfile.write(infile.read())
+        return output_file
 
 # ============================================================================
 # API ROUTES
@@ -406,6 +472,7 @@ def generate_podcast():
         data = request.json
         script = data.get('script', '')
         language = data.get('language', 'global')
+        bg_music = data.get('bg_music', 'none')
         podcast_name = data.get('name', f'podcast_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
         
         podcast_name = re.sub(r'[^\w\-_]', '_', podcast_name)
@@ -504,7 +571,7 @@ def generate_podcast():
         print(f"\n🎧 Merging {len(audio_files)} segments...")
         
         output_file = OUTPUT_DIR / f"{podcast_name}.mp3"
-        merge_audio_files(audio_files, output_file)
+        merge_audio_files(audio_files, output_file, bg_music if bg_music != "none" else None)
         
         if not output_file.exists():
             return jsonify({"error": "Failed to create final file"}), 500
