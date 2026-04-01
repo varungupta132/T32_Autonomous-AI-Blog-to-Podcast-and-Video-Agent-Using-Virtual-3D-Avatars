@@ -59,8 +59,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # ============================================================================
 
 # OpenAI API Configuration
-OPENAI_API_KEY = os.environ.get("OPENROUTER_API_KEY", "your-openrouter-api-key-here")
-
+OPENAI_API_KEY = "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"
 # EdgeTTS voices - Natural Microsoft voices (FREE!)
 VOICE_LIBRARY = {
     "indian": [
@@ -307,6 +306,8 @@ def get_voice_params(emotion):
         "curious": {"rate": "+5%", "pitch": "+3Hz"},
         "emphasis": {"rate": "+0%", "pitch": "+2Hz"},
         "thoughtful": {"rate": "-10%", "pitch": "-2Hz"},
+        "calm": {"rate": "-5%", "pitch": "-5Hz"},
+        "serious": {"rate": "-10%", "pitch": "-5Hz"},
         "neutral": {"rate": "+0%", "pitch": "+0Hz"}
     }
     return params.get(emotion, params["neutral"])
@@ -316,11 +317,14 @@ async def generate_audio_async(text, voice, rate, pitch, output_path):
     communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
     await communicate.save(str(output_path))
 
-def generate_audio_segment(speaker_voice, text, output_path):
+def generate_audio_segment(speaker_voice, text, output_path, emotion_override="auto"):
     """Generate audio segment with emotion"""
     try:
         voice_info = speaker_voice["voice_info"]
-        emotion = analyze_emotion(text)
+        if emotion_override and emotion_override != "auto":
+            emotion = emotion_override
+        else:
+            emotion = analyze_emotion(text)
         params = get_voice_params(emotion)
         
         loop = asyncio.new_event_loop()
@@ -473,6 +477,7 @@ def generate_podcast():
         script = data.get('script', '')
         language = data.get('language', 'global')
         bg_music = data.get('bg_music', 'none')
+        emotion_overrides = data.get('emotion_overrides', {})
         podcast_name = data.get('name', f'podcast_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
         
         podcast_name = re.sub(r'[^\w\-_]', '_', podcast_name)
@@ -505,7 +510,8 @@ def generate_podcast():
                 "speaker": speaker,
                 "text": text,
                 "output_path": output_path,
-                "voice": speaker_voices[speaker]
+                "voice": speaker_voices[speaker],
+                "emotion_override": emotion_overrides.get(speaker, "auto")
             })
         
         audio_files = [None] * len(tasks)
@@ -521,10 +527,11 @@ def generate_podcast():
                 text = task["text"]
                 output_path = task["output_path"]
                 voice = task["voice"]
+                emotion_override = task.get("emotion_override", "auto")
                 
                 print(f"[{idx+1}/{len(tasks)}] 🎵 {speaker}: {text[:40]}...")
                 
-                _, emotion = generate_audio_segment(voice, text, output_path)
+                _, emotion = generate_audio_segment(voice, text, output_path, emotion_override)
                 
                 if output_path.exists():
                     print(f"[{idx+1}/{len(tasks)}] ✓ Done ({emotion})")

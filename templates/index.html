@@ -509,6 +509,15 @@
                                 <h4>${name}</h4>
                                 <p>${info.voice} — ${info.engine}</p>
                             </div>
+                            <div style="margin-left: auto;">
+                                <select class="emotion-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; width: 110px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border);">
+                                    <option value="auto">Auto (AI)</option>
+                                    <option value="neutral">Neutral</option>
+                                    <option value="excited">Excited</option>
+                                    <option value="calm">Calm</option>
+                                    <option value="serious">Serious</option>
+                                </select>
+                            </div>
                         `;
                         rosterContainer.appendChild(card);
                     }
@@ -529,6 +538,14 @@
             
             const language = document.getElementById('language').value;
             const bgMusic = document.getElementById('bgMusic').value;
+            
+            const emotionSelects = document.querySelectorAll('.emotion-select');
+            const emotionOverrides = {};
+            emotionSelects.forEach(select => {
+                if(select.value !== 'auto') {
+                    emotionOverrides[select.dataset.speaker] = select.value;
+                }
+            });
 
             btnAudio.disabled = true;
             btnAudioText.innerText = "Rendering...";
@@ -547,7 +564,7 @@
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ script, name: 'mastered_podcast', language, bg_music: bgMusic })
+                    body: JSON.stringify({ script, name: 'mastered_podcast', language, bg_music: bgMusic, emotion_overrides: emotionOverrides })
                 });
                 const data = await res.json();
                 
