@@ -59,7 +59,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # ============================================================================
 
 # OpenAI API Configuration
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 # EdgeTTS voices - Natural Microsoft voices (FREE!)
 VOICE_LIBRARY = {
     "indian": [
@@ -634,6 +634,26 @@ def download_podcast(filename):
         if file_path.exists():
             return send_file(file_path, as_attachment=True)
         return jsonify({"error": "File not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history')
+def get_history():
+    """Get history of generated podcasts"""
+    try:
+        files = []
+        if OUTPUT_DIR.exists():
+            for file in OUTPUT_DIR.glob('*.mp3'):
+                files.append({
+                    "filename": file.name,
+                    "size": f"{file.stat().st_size / 1024 / 1024:.2f} MB",
+                    "created_raw": file.stat().st_mtime,
+                    "created": datetime.fromtimestamp(file.stat().st_mtime).strftime("%d %b %Y, %H:%M")
+                })
+        
+        # Sort files by creation time descending
+        files.sort(key=lambda x: x["created_raw"], reverse=True)
+        return jsonify({"success": True, "podcasts": files})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

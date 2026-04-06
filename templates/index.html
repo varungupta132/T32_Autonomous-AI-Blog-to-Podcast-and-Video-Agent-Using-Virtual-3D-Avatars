@@ -255,6 +255,31 @@
             font-size: 1.2rem; font-weight: 600; color: var(--accent); font-family: 'Outfit', sans-serif;
         }
 
+        /* Project History Panel */
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border);
+            padding: 15px 20px; border-radius: 12px; margin-bottom: 10px;
+        }
+        .history-item:hover { border-color: rgba(255, 78, 0, 0.3); }
+        .history-title { font-weight: 600; color: #fff; }
+        .history-meta { font-size: 0.85rem; color: var(--text-muted); }
+        .history-actions { display: flex; gap: 10px; align-items: center; }
+        .history-btn { 
+            background: transparent; color: var(--accent); border: 1px solid var(--accent); 
+            padding: 6px 16px; border-radius: 20px; text-decoration: none; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.3s; width: auto; font-family: 'Inter', sans-serif;
+            display: inline-block;
+        }
+        .history-btn::after { display: none; }
+        .history-btn:hover { background: var(--accent); color: #000; box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3); transform: none; }
+        .history-scroll {
+            max-height: 250px; overflow-y: auto; padding-right: 5px;
+        }
+        .history-scroll::-webkit-scrollbar { width: 6px; }
+        .history-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .history-scroll::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.5); border-radius: 10px; }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -369,6 +394,14 @@
                     <audio id="audioPlayer" controls crossorigin="anonymous"></audio>
                     <a id="downloadLink" href="#" class="download-btn">Download MP3 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Row: Project History -->
+        <div class="card" style="margin-top: 2.5rem;">
+            <h2 style="color: white; margin-bottom: 20px;">3. Project History</h2>
+            <div id="projectHistoryContainer" class="history-scroll">
+                <p style="color: var(--text-muted);">Loading past podcasts...</p>
             </div>
         </div>
     </div>
@@ -623,6 +656,7 @@
                     downloadLink.download = "My_AI_Podcast.mp3";
                     
                     audioResult.classList.add('active');
+                    loadHistory(); // Refresh history
                 } else {
                     alert('Error: ' + data.error);
                 }
@@ -643,6 +677,44 @@
         });
         canvas.width = canvas.offsetWidth;
         canvas.height = canvas.offsetHeight;
+
+        // Project History Logic
+        async function loadHistory() {
+            const container = document.getElementById('projectHistoryContainer');
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                if (data.success) {
+                    if (data.podcasts.length === 0) {
+                        container.innerHTML = '<p style="color: var(--text-muted);">No generated podcasts yet.</p>';
+                    } else {
+                        container.innerHTML = data.podcasts.map(p => `
+                            <div class="history-item">
+                                <div>
+                                    <div class="history-title">${p.filename}</div>
+                                    <div class="history-meta">${p.size} &nbsp;&bull;&nbsp; ${p.created}</div>
+                                </div>
+                                <div class="history-actions">
+                                    <button class="history-btn" onclick="playHistory('${p.filename}')">Play</button>
+                                    <a class="history-btn" href="/api/download/${p.filename}" download="${p.filename}">Download</a>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch(e) {
+                container.innerHTML = '<p style="color: #ff4e00;">Failed to load history.</p>';
+            }
+        }
+
+        function playHistory(filename) {
+            audioPlayer.src = '/api/stream/' + filename + '?t=' + Date.now();
+            audioPlayer.play();
+            audioResult.classList.add('active');
+            window.scrollTo({ top: audioResult.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadHistory);
     </script>
 </body>
 </html>
