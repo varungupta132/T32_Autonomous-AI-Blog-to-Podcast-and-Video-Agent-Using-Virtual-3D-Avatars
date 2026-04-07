@@ -587,18 +587,24 @@
                             <div class="avatar">${initial}</div>
                             <div class="speaker-details" style="flex: 1; min-width: 150px;">
                                 <h4>${name}</h4>
-                                <select class="voice-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; width: 100%; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); margin-top: 5px; max-width: 100%;">
-                                    ${voiceOptions}
-                                </select>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Voice:</span>
+                                    <select class="voice-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; flex: 1; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); max-width: 100%;">
+                                        ${voiceOptions}
+                                    </select>
+                                </div>
                             </div>
                             <div style="margin-left: auto;">
-                                <select class="emotion-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; width: 110px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border);">
-                                    <option value="auto">Auto (AI)</option>
-                                    <option value="neutral">Neutral</option>
-                                    <option value="excited">Excited</option>
-                                    <option value="calm">Calm</option>
-                                    <option value="serious">Serious</option>
-                                </select>
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Emotion:</span>
+                                    <select class="emotion-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; width: 110px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border);">
+                                        <option value="auto">Auto (AI)</option>
+                                        <option value="neutral">Neutral</option>
+                                        <option value="excited">Excited</option>
+                                        <option value="calm">Calm</option>
+                                        <option value="serious">Serious</option>
+                                    </select>
+                                </div>
                             </div>
                         `;
                         rosterContainer.appendChild(card);
