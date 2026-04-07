@@ -451,6 +451,7 @@ def analyze_script():
             return jsonify({"error": "No valid dialogues found. Format: Speaker: Dialogue"}), 400
         
         speaker_voices = detect_speakers(dialogues, language)
+        voices_for_lang = VOICE_LIBRARY.get(language, VOICE_LIBRARY["global"])
         
         return jsonify({
             "success": True,
@@ -459,10 +460,12 @@ def analyze_script():
             "speaker_info": {
                 speaker: {
                     "voice": info["voice_info"]["name"],
+                    "voice_key": info["voice_key"],
                     "engine": "Microsoft EdgeTTS (FREE)"
                 }
                 for speaker, info in speaker_voices.items()
             },
+            "available_voices": voices_for_lang,
             "dialogues": dialogues
         })
     
@@ -478,6 +481,7 @@ def generate_podcast():
         language = data.get('language', 'global')
         bg_music = data.get('bg_music', 'none')
         emotion_overrides = data.get('emotion_overrides', {})
+        voice_overrides = data.get('voice_overrides', {})
         podcast_name = data.get('name', f'podcast_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
         
         podcast_name = re.sub(r'[^\w\-_]', '_', podcast_name)
@@ -500,17 +504,32 @@ def generate_podcast():
         print(f"⚡ Using parallel generation\n")
         
         tasks = []
+        all_voices = VOICE_LIBRARY.get(language, VOICE_LIBRARY["global"])
+        voice_dict = {v["voice"]: v for v in all_voices}
+        
         for i, dialogue in enumerate(dialogues):
             speaker = dialogue["speaker"]
             text = dialogue["text"]
             output_path = TEMP_DIR / f"{podcast_name}_seg_{i:03d}_{speaker}.mp3"
+            
+            # Start with default assigned voice
+            speaker_voice_config = speaker_voices[speaker]
+            
+            # Apply override if present
+            if speaker in voice_overrides:
+                override_key = voice_overrides[speaker]
+                if override_key in voice_dict:
+                    speaker_voice_config = {
+                        "voice_key": override_key,
+                        "voice_info": {**voice_dict[override_key], "rate": "+0%", "pitch": "+0Hz"}
+                    }
             
             tasks.append({
                 "index": i,
                 "speaker": speaker,
                 "text": text,
                 "output_path": output_path,
-                "voice": speaker_voices[speaker],
+                "voice": speaker_voice_config,
                 "emotion_override": emotion_overrides.get(speaker, "auto")
             })
         

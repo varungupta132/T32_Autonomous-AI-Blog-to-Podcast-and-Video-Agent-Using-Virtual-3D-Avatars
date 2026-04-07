@@ -569,15 +569,27 @@
                     for (const [name, info] of Object.entries(data.speaker_info)) {
                         const card = document.createElement('div');
                         card.className = 'speaker-card';
+                        card.style.flexWrap = 'wrap';
                         
                         // Pick first letter of name for Avatar
                         const initial = name.charAt(0).toUpperCase();
+
+                        // Create voice options
+                        let voiceOptions = '';
+                        if (data.available_voices) {
+                            data.available_voices.forEach(v => {
+                                const selected = (v.voice === info.voice_key) ? 'selected' : '';
+                                voiceOptions += `<option value="${v.voice}" ${selected}>${v.name}</option>`;
+                            });
+                        }
                         
                         card.innerHTML = `
                             <div class="avatar">${initial}</div>
-                            <div class="speaker-details">
+                            <div class="speaker-details" style="flex: 1; min-width: 150px;">
                                 <h4>${name}</h4>
-                                <p>${info.voice} — ${info.engine}</p>
+                                <select class="voice-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; width: 100%; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); margin-top: 5px; max-width: 100%;">
+                                    ${voiceOptions}
+                                </select>
                             </div>
                             <div style="margin-left: auto;">
                                 <select class="emotion-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; width: 110px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border);">
@@ -628,6 +640,14 @@
                 }
             });
 
+            const voiceSelects = document.querySelectorAll('.voice-select');
+            const voiceOverrides = {};
+            voiceSelects.forEach(select => {
+                if(select.value) {
+                    voiceOverrides[select.dataset.speaker] = select.value;
+                }
+            });
+
             btnAudio.disabled = true;
             btnAudioText.innerText = "Rendering...";
             audioLoader.classList.add('active');
@@ -645,7 +665,7 @@
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ script, name: 'mastered_podcast', language, bg_music: bgMusic, emotion_overrides: emotionOverrides })
+                    body: JSON.stringify({ script, name: 'mastered_podcast', language, bg_music: bgMusic, emotion_overrides: emotionOverrides, voice_overrides: voiceOverrides })
                 });
                 const data = await res.json();
                 
