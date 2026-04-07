@@ -59,7 +59,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # ============================================================================
 
 # OpenAI API Configuration
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 # EdgeTTS voices - Natural Microsoft voices (FREE!)
 VOICE_LIBRARY = {
     "indian": [
@@ -146,14 +146,11 @@ BAD Examples (Avoid):
 
 
         if ptype == "single":
-            fmt = """SINGLE HOST ONLY - Use ONLY "Host:" label.
-Host speaks directly to listeners warmly and engagingly."""
+            fmt = """SINGLE SPEAKER ONLY (1 person). Focus on direct engaging narration to the listeners."""
         elif ptype == "co-host":
-            fmt = """TWO HOSTS - Alex and Sam in natural dialogue.
-They discuss, ask questions, and build on each other's points."""
+            fmt = """TWO SPEAKERS ONLY (2 people). Natural dialogue. Use names from the blog if available, otherwise invent two distinct human names."""
         else:
-            fmt = """THREE HOSTS - Alex (moderator), Jordan (expert), Casey (curious).
-Dynamic conversation with different perspectives."""
+            fmt = """THREE SPEAKERS ONLY (3 people). Dynamic conversation. Use names from the blog if available, otherwise invent three distinct human names."""
 
         prompt = f"""Convert the following blog into an engaging podcast script.
 
@@ -175,6 +172,8 @@ CRITICAL RULES:
 7. For Hinglish: Start sentences in Hindi, add English words naturally. NO full English sentences.
 8. Each speaker on separate line
 9. Keep grammar simple and correct
+10. USE PROPER HUMAN NAMES. Do NOT use generic labels like 'Host 1' or 'Speaker A'.
+11. STRICT SPEAKER LIMIT: Do not introduce more internal characters than specified in FORMAT.
 
 TOPIC: {title if title else "Untitled"}
 
@@ -209,20 +208,10 @@ Write ONLY the dialogue. Start now:
         script = script.replace('INTRO MUSIC', '').replace('OUTRO MUSIC', '')
         script = script.replace('MUSIC', '').replace('SOUND', '')
 
-        if ptype == "single":
-            script = re.sub(r'(Alex|Sam|Jordan|Casey):', 'Host:', script)
-        elif ptype == "co-host":
-            script = script.replace('Host 1:', 'Alex:')
-            script = script.replace('Host 2:', 'Sam:')
-            script = script.replace('Host1:', 'Alex:')
-            script = script.replace('Host2:', 'Sam:')
-            script = script.replace('Host:', 'Alex:')
-            script = re.sub(r'(Jordan|Casey):', 'Sam:', script)
-        else:
-            script = script.replace('Host:', 'Alex:')
-            script = script.replace('Host 1:', 'Alex:')
-            script = script.replace('Host 2:', 'Jordan:')
-            script = script.replace('Host 3:', 'Casey:')
+        # Basic cleanup of fallback generic names to ensure presentation is clean
+        script = script.replace('Host 1:', 'Speaker 1:')
+        script = script.replace('Host 2:', 'Speaker 2:')
+        script = script.replace('Host 3:', 'Speaker 3:')
 
         script = re.sub(r'[ \t]+', ' ', script)
         script = re.sub(r' +\n', '\n', script)
@@ -652,6 +641,22 @@ def download_podcast(filename):
         file_path = OUTPUT_DIR / filename
         if file_path.exists():
             return send_file(file_path, as_attachment=True)
+        return jsonify({"error": "File not found"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/delete/<filename>', methods=['DELETE'])
+def delete_podcast(filename):
+    """Delete a generated podcast"""
+    try:
+        # Prevent path traversal
+        if ".." in filename or "/" in filename or "\\" in filename:
+            return jsonify({"error": "Invalid filename"}), 400
+        
+        file_path = OUTPUT_DIR / filename
+        if file_path.exists():
+            file_path.unlink()
+            return jsonify({"success": True})
         return jsonify({"error": "File not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -723,6 +723,7 @@
                                 <div class="history-actions">
                                     <button class="history-btn" onclick="playHistory('${p.filename}')">Play</button>
                                     <a class="history-btn" href="/api/download/${p.filename}" download="${p.filename}">Download</a>
+                                    <button class="history-btn" style="color: #ff4444; border-color: #ff4444;" onclick="deleteHistory('${p.filename}')">Delete</button>
                                 </div>
                             </div>
                         `).join('');
@@ -738,6 +739,27 @@
             audioPlayer.play();
             audioResult.classList.add('active');
             window.scrollTo({ top: audioResult.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        async function deleteHistory(filename) {
+            if (!confirm('Are you sure you want to delete ' + filename + '?')) return;
+            try {
+                const res = await fetch('/api/delete/' + encodeURIComponent(filename), { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    loadHistory();
+                    // Stop playing if it's currently loaded
+                    if (audioPlayer.src.includes(encodeURIComponent(filename))) {
+                        audioPlayer.pause();
+                        audioPlayer.src = '';
+                        audioResult.classList.remove('active');
+                    }
+                } else {
+                    alert('Error deleting file: ' + data.error);
+                }
+            } catch(e) {
+                alert('Connection error');
+            }
         }
 
         document.addEventListener('DOMContentLoaded', loadHistory);
