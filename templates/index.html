@@ -308,25 +308,15 @@
                     <label>Blog Content / Source Material</label>
                     <textarea id="content" rows="6" placeholder="Paste the full text here to be transformed into a dynamic conversation..."></textarea>
                 </div>
-                <div class="grid" style="gap: 1rem; grid-template-columns: 1fr 1fr; margin-bottom: 1rem;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>Format</label>
-                        <select id="podcastType">
-                            <option value="single">1 Host (Solo)</option>
-                            <option value="co-host" selected>2 Hosts (Dialogue)</option>
-                            <option value="panel">3 Hosts (Panel)</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label>Language & Vibe</label>
-                        <select id="language">
-                            <option value="global">English (Global)</option>
-                            <option value="indian" selected>Hinglish (India)</option>
-                            <option value="telugu">Telugu</option>
-                            <option value="french">French</option>
-                            <option value="spanish">Spanish</option>
-                        </select>
-                    </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Language & Vibe</label>
+                    <select id="language">
+                        <option value="global">English (Global)</option>
+                        <option value="indian" selected>Hinglish (India)</option>
+                        <option value="telugu">Telugu</option>
+                        <option value="french">French</option>
+                        <option value="spanish">Spanish</option>
+                    </select>
                 </div>
                 <!-- Background Music Selection -->
                 <div class="form-group" style="margin-bottom: 1.5rem;">
@@ -503,7 +493,7 @@
         btnScript.addEventListener('click', async () => {
             const content = document.getElementById('content').value;
             const title = document.getElementById('title').value;
-            const type = document.getElementById('podcastType').value;
+            const type = 'co-host';
             const language = document.getElementById('language').value;
 
             if (!content) {
