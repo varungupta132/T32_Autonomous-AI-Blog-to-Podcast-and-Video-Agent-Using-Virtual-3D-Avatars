@@ -627,6 +627,7 @@
             
             const language = document.getElementById('language').value;
             const bgMusic = document.getElementById('bgMusic').value;
+            const title = document.getElementById('title').value;
             
             const emotionSelects = document.querySelectorAll('.emotion-select');
             const emotionOverrides = {};
@@ -661,7 +662,7 @@
                 const res = await fetch('/api/generate', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ script, name: 'mastered_podcast', language, bg_music: bgMusic, emotion_overrides: emotionOverrides, voice_overrides: voiceOverrides })
+                    body: JSON.stringify({ script, name: 'mastered_podcast', title, language, bg_music: bgMusic, emotion_overrides: emotionOverrides, voice_overrides: voiceOverrides })
                 });
                 const data = await res.json();
                 
@@ -705,16 +706,22 @@
                         container.innerHTML = '<p style="color: var(--text-muted);">No generated podcasts yet.</p>';
                     } else {
                         container.innerHTML = data.podcasts.map(p => `
-                            <div class="history-item">
-                                <div>
-                                    <div class="history-title">${p.filename}</div>
-                                    <div class="history-meta">${p.size} &nbsp;&bull;&nbsp; ${p.created}</div>
+                            <div class="history-item" style="flex-direction: column; align-items: stretch;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="history-title">${p.title || p.filename}</div>
+                                        <div class="history-meta">${p.size} &nbsp;&bull;&nbsp; ${p.created}</div>
+                                    </div>
+                                    <div class="history-actions">
+                                        <button class="history-btn" onclick="playHistory('${p.filename}')">Play</button>
+                                        <a class="history-btn" href="/api/download/${p.filename}" download="${p.filename}">Download</a>
+                                        <button class="history-btn" style="color: #ff4444; border-color: #ff4444;" onclick="deleteHistory('${p.filename}')">Delete</button>
+                                    </div>
                                 </div>
-                                <div class="history-actions">
-                                    <button class="history-btn" onclick="playHistory('${p.filename}')">Play</button>
-                                    <a class="history-btn" href="/api/download/${p.filename}" download="${p.filename}">Download</a>
-                                    <button class="history-btn" style="color: #ff4444; border-color: #ff4444;" onclick="deleteHistory('${p.filename}')">Delete</button>
-                                </div>
+                                ${p.script && p.script !== 'No script available.' ? `<details style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                                    <summary style="cursor: pointer; color: var(--accent); font-size: 0.85rem; user-select: none;">Show Script</summary>
+                                    <div style="margin-top: 8px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; max-height: 150px; overflow-y: auto; font-size: 0.85rem; color: #ccc; white-space: pre-wrap;">${p.script}</div>
+                                </details>` : ''}
                             </div>
                         `).join('');
                     }

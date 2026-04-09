@@ -59,7 +59,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 # ============================================================================
 
 # OpenAI API Configuration
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = "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"
 # EdgeTTS voices - Natural Microsoft voices (FREE!)
 VOICE_LIBRARY = {
     "indian": [
@@ -92,6 +92,24 @@ OUTPUT_DIR = Path("generated_podcasts")
 TEMP_DIR = Path("temp_audio")
 OUTPUT_DIR.mkdir(exist_ok=True)
 TEMP_DIR.mkdir(exist_ok=True)
+HISTORY_FILE = OUTPUT_DIR / "history.json"
+
+def get_history_data():
+    if not HISTORY_FILE.exists():
+        return []
+    try:
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
+
+def save_history_data(entry):
+    history = get_history_data()
+    # Check if file already exists in history and replace
+    history = [h for h in history if h.get("filename") != entry.get("filename")]
+    history.insert(0, entry)
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, indent=4)
 
 # ============================================================================
 # FLASK APP
@@ -147,10 +165,8 @@ BAD Examples (Avoid):
 
         if ptype == "single":
             fmt = """SINGLE SPEAKER ONLY (1 person). Focus on direct engaging narration to the listeners."""
-        elif ptype == "co-host":
-            fmt = """TWO SPEAKERS ONLY (2 people). Natural dialogue. Use names from the blog if available, otherwise invent two distinct human names."""
         else:
-            fmt = """THREE SPEAKERS ONLY (3 people). Dynamic conversation. Use names from the blog if available, otherwise invent three distinct human names."""
+            fmt = """DYNAMIC CONVERSATION. You MUST accurately reflect the people mentioned in the blog content. Use their EXACT NAMES and include ALL of them in the dialogue. If no specific names are mentioned, default to a two-person natural dialogue."""
 
         prompt = f"""Convert the following blog into an engaging podcast script.
 
@@ -184,7 +200,7 @@ Write ONLY the dialogue. Start now:
 """
 
         response = client.chat.completions.create(
-            model="google/gemini-2.0-flash-lite-001",
+            model="openai/gpt-4o-mini",
             messages=[
                 {
                     'role': 'system',
