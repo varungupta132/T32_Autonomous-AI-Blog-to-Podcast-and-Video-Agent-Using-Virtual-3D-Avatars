@@ -1,7 +1,7 @@
 import re
 from openai import OpenAI
 
-OPENAI_API_KEY = "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"
+OPENAI_API_KEY = ""
 
 def generate_ai_podcast(content, title, ptype, audience):
     """Generate podcast script using OpenRouter API"""
