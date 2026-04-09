@@ -2,8 +2,10 @@ import json
 from pathlib import Path
 
 OUTPUT_DIR = Path("generated_podcasts")
+TEMP_DIR = Path("temp_audio")
 HISTORY_FILE = OUTPUT_DIR / "history.json"
 OUTPUT_DIR.mkdir(exist_ok=True)
+TEMP_DIR.mkdir(exist_ok=True)
 
 def get_history_data():
     if not HISTORY_FILE.exists():
