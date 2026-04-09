@@ -329,6 +329,14 @@
                     </select>
                 </div>
                 
+                <!-- Video Settings -->
+                <div class="form-group" style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="font-size: 1rem; color: #fff; margin-bottom: 10px;">🎥 Video Studio Settings</h3>
+                    <label style="color: var(--text-muted);">D-ID API Key (for Video Generation)</label>
+                    <input type="password" id="didApiKey" placeholder="Basic YXBpX2tleV9oZXJl...">
+                    <small style="color: #FF8C00; font-size: 0.8rem; display: block; margin-top: 5px;">Required ONLY for generating deepfake avatars.</small>
+                </div>
+                
                 <button id="generateScriptBtn">
                     <span id="btnScriptText">Ignite AI Generation</span>
                 </button>
@@ -369,9 +377,15 @@
                     <div id="rosterContainer"></div>
                 </div>
                 
-                <button id="generateAudioBtn" style="margin-top: 1.5rem; background: linear-gradient(45deg, #FF8C00, #FF4E00);" class="hidden">
-                    <span id="btnAudioText">Synthesize Voices & Render</span>
-                </button>
+                <div style="display: flex; gap: 10px; margin-top: 1.5rem;" id="renderControls" class="hidden">
+                    <button id="generateAudioBtn" style="background: linear-gradient(45deg, #FF8C00, #FF4E00); flex: 1;">
+                        <span id="btnAudioText">Synthesize Audio</span>
+                    </button>
+                    <button id="generateVideoBtn" style="background: linear-gradient(45deg, #9C27B0, #E91E63); flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2;">
+                        <span id="btnVideoText" style="font-weight: 600;">Render Video</span>
+                        <span style="font-size: 0.70rem; font-weight: normal; opacity: 0.8;">Requires D-ID Key & Images</span>
+                    </button>
+                </div>
 
                 <div class="stage-loader" id="audioLoader">
                     <div class="bouncing-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
@@ -400,6 +414,8 @@
         // DOM Elements
         const btnScript = document.getElementById('generateScriptBtn');
         const btnAudio = document.getElementById('generateAudioBtn');
+        const btnVideo = document.getElementById('generateVideoBtn');
+        const renderControls = document.getElementById('renderControls');
         const scriptLoader = document.getElementById('scriptLoader');
         const audioLoader = document.getElementById('audioLoader');
         const scriptStageText = document.getElementById('scriptStageText');
@@ -414,6 +430,7 @@
         const downloadLink = document.getElementById('downloadLink');
         const btnScriptText = document.getElementById('btnScriptText');
         const btnAudioText = document.getElementById('btnAudioText');
+        const btnVideoText = document.getElementById('btnVideoText');
 
         // Audio Visualizer Setup
         const canvas = document.getElementById('visualizer');
@@ -506,7 +523,7 @@
             scriptLoader.classList.add('active');
             speakerRoster.classList.remove('active');
             document.getElementById('scriptStats').classList.add('hidden');
-            btnAudio.classList.add('hidden');
+            renderControls.classList.add('hidden');
             audioResult.classList.remove('active');
             scriptOutput.value = "";
 
@@ -583,6 +600,10 @@
                                         ${voiceOptions}
                                     </select>
                                 </div>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Avatar URL:</span>
+                                    <input type="text" class="avatar-url" data-speaker="${name}" placeholder="Image URL required for Video" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; flex: 1; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); max-width: 100%;">
+                                </div>
                             </div>
                             <div style="margin-left: auto;">
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
@@ -603,21 +624,21 @@
                     // Update Script Stats
                     const words = script.trim().split(/\s+/).filter(w => w.length > 0).length;
                     const totalSeconds = Math.round((words / 150) * 60);
-                    const m = Math.floor(totalSeconds / 60);
-                    const s = totalSeconds % 60;
-
-                    document.getElementById('statWords').innerText = words;
-                    document.getElementById('statSpeakers').innerText = data.speakers;
-                    document.getElementById('statDuration').innerText = m + "m " + s + "s";
+                    // Show UI Elements
                     document.getElementById('scriptStats').classList.remove('hidden');
-
                     speakerRoster.classList.add('active');
+                    renderControls.classList.remove('hidden');
+                    
+                    // Show stats
+                    document.getElementById('statWords').innerText = script.split(/\s+/).length;
+                    document.getElementById('statSpeakers').innerText = data.speakers;
+                    document.getElementById('statDuration').innerText = Math.floor(script.split(/\s+/).length / 150) + "m";
+                    
                     btnAudio.classList.remove('hidden'); // Reveal audio render button
                 }
             } catch(e) {
                 console.error("Failed to analyze script", e);
-                // Still allow rendering even if analysis fails visually
-                btnAudio.classList.remove('hidden');
+                renderControls.classList.remove('hidden');
             }
         }
 
@@ -682,7 +703,105 @@
             } finally {
                 clearInterval(loaderInt);
                 btnAudio.disabled = false;
-                btnAudioText.innerText = "Synthesize Podcast Audio";
+                btnAudioText.innerText = "Synthesize Audio";
+                audioLoader.classList.remove('active');
+            }
+        });
+
+        btnVideo.addEventListener('click', async () => {
+            const script = scriptOutput.value;
+            if(!script) return;
+            
+            const didApiKey = document.getElementById('didApiKey').value.trim();
+            if(!didApiKey) {
+                alert("Please provide your D-ID API key in the Video Settings section.");
+                return;
+            }
+            
+            const language = document.getElementById('language').value;
+            const bgMusic = document.getElementById('bgMusic').value;
+            const title = document.getElementById('title').value;
+            
+            const emotionSelects = document.querySelectorAll('.emotion-select');
+            const emotionOverrides = {};
+            emotionSelects.forEach(select => {
+                if(select.value !== 'auto') {
+                    emotionOverrides[select.dataset.speaker] = select.value;
+                }
+            });
+
+            const voiceSelects = document.querySelectorAll('.voice-select');
+            const voiceOverrides = {};
+            voiceSelects.forEach(select => {
+                if(select.value) {
+                    voiceOverrides[select.dataset.speaker] = select.value;
+                }
+            });
+            
+            const avatarInputs = document.querySelectorAll('.avatar-url');
+            const avatarMapping = {};
+            let missingImages = false;
+            avatarInputs.forEach(input => {
+                if(input.value) {
+                    avatarMapping[input.dataset.speaker] = input.value;
+                } else {
+                    missingImages = true;
+                }
+            });
+            
+            if(missingImages) {
+                if(!confirm("Some speakers do not have an Avatar Image URL assigned. Do you want to proceed anyway? (Those segments will fail video generation)")) {
+                    return;
+                }
+            }
+
+            btnVideo.disabled = true;
+            btnAudio.disabled = true;
+            btnVideoText.innerText = "Rendering Video...";
+            audioLoader.classList.add('active');
+            audioResult.classList.remove('active');
+
+            const loaderInt = animateLoading(audioStageText, [
+                "Preparing Voice Avatars...",
+                "Contacting D-ID API... (This takes a while)",
+                "Generating lip-sync movements...",
+                "Waiting for cloud rendering...",
+                "Downloading MP4 sequences...",
+                "Stitching Final Video via MoviePy..."
+            ]);
+
+            try {
+                const res = await fetch('/api/generate-video', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        script, name: 'video_podcast', title, language, bg_music: bgMusic, 
+                        emotion_overrides: emotionOverrides, voice_overrides: voiceOverrides,
+                        did_api_key: didApiKey, avatar_mapping: avatarMapping
+                    })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    // It returns an mp4
+                    audioPlayer.src = '/api/stream/' + data.filename + '?t=' + Date.now();
+                    downloadLink.href = '/api/download/' + data.filename;
+                    downloadLink.download = "My_AI_Podcast.mp4";
+                    downloadLink.innerHTML = 'Download MP4 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
+                    
+                    audioResult.querySelector('h3').innerText = "Your Video Masterpiece is Ready 🎬";
+                    audioResult.classList.add('active');
+                    loadHistory();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch(e) {
+                alert('Connection error or timeout');
+            } finally {
+                clearInterval(loaderInt);
+                btnVideo.disabled = false;
+                btnAudio.disabled = false;
+                btnVideoText.innerText = "Render Video";
                 audioLoader.classList.remove('active');
             }
         });

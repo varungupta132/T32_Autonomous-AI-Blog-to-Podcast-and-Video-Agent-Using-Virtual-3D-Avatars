@@ -16,6 +16,8 @@ from tts_engine import (
     parse_script, detect_speakers, generate_audio_segment, 
     merge_audio_files, VOICE_LIBRARY
 )
+from avatar import generate_did_video
+from video_generator import merge_avatar_videos
 
 app = Flask(__name__)
 
@@ -173,6 +175,123 @@ def generate_podcast():
             "success": True, "filename": output_file.name,
             "file_size": f"{output_file.stat().st_size / 1024 / 1024:.2f} MB",
             "total_segments": len(audio_files), "speakers": len(speaker_voices), "progress": progress_data
+        })
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/generate-video', methods=['POST'])
+def generate_podcast_video():
+    try:
+        data = request.json
+        script = data.get('script', '')
+        title = data.get('title', 'Untitled Video Podcast')
+        language = data.get('language', 'global')
+        bg_music = data.get('bg_music', 'none')
+        emotion_overrides = data.get('emotion_overrides', {})
+        voice_overrides = data.get('voice_overrides', {})
+        did_api_key = data.get('did_api_key', '')
+        avatar_mapping = data.get('avatar_mapping', {})
+        
+        podcast_name = data.get('name', f'podcast_{datetime.now().strftime("%Y%m%d_%H%M%S")}')
+        podcast_name = re.sub(r'[^\w\-_]', '_', podcast_name)
+        
+        if not did_api_key: return jsonify({"error": "D-ID API Key is required for video generation"}), 400
+        if not script: return jsonify({"error": "No script provided"}), 400
+        
+        dialogues = parse_script(script)
+        if not dialogues: return jsonify({"error": "No valid dialogues found"}), 400
+            
+        speaker_voices = detect_speakers(dialogues, language)
+        tasks = []
+        all_voices = VOICE_LIBRARY.get(language, VOICE_LIBRARY["global"])
+        voice_dict = {v["voice"]: v for v in all_voices}
+        
+        for i, dialogue in enumerate(dialogues):
+            speaker = dialogue["speaker"]
+            text = dialogue["text"]
+            output_path = TEMP_DIR / f"{podcast_name}_seg_{i:03d}_{speaker}.mp3"
+            
+            speaker_voice_config = speaker_voices[speaker]
+            if speaker in voice_overrides:
+                override_key = voice_overrides[speaker]
+                if override_key in voice_dict:
+                    speaker_voice_config = {
+                        "voice_key": override_key,
+                        "voice_info": {**voice_dict[override_key], "rate": "+0%", "pitch": "+0Hz"}
+                    }
+                    
+            avatar_img_url = avatar_mapping.get(speaker, "")
+            
+            tasks.append({
+                "index": i, "speaker": speaker, "text": text, "output_path": output_path,
+                "voice": speaker_voice_config, "emotion_override": emotion_overrides.get(speaker, "auto"),
+                "avatar_img_url": avatar_img_url
+            })
+            
+        final_video_files = [None] * len(tasks)
+        progress_data = []
+
+        def worker(task):
+            try:
+                audio_path, emotion = generate_audio_segment(task["voice"], task["text"], task["output_path"], task.get("emotion_override", "auto"))
+                if not task["output_path"].exists():
+                    return {"success": False, "index": task["index"], "error": "Audio file not created"}
+                    
+                if not task["avatar_img_url"]:
+                    return {"success": False, "index": task["index"], "error": f"No avatar image assigned for {task['speaker']}"}
+                    
+                vid_url = generate_did_video(str(audio_path), task["avatar_img_url"], did_api_key)
+                
+                return {
+                    "success": True, "index": task["index"], "vid_url": vid_url, 
+                    "speaker": task["speaker"], "emotion": emotion, "text": task["text"]
+                }
+            except Exception as e:
+                return {"success": False, "index": task["index"], "error": str(e)}
+
+        max_workers = min(len(tasks), 4)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_task = {executor.submit(worker, task): task for task in tasks}
+            for future in as_completed(future_to_task):
+                res = future.result()
+                if res["success"]:
+                    idx = res["index"]
+                    final_video_files[idx] = res["vid_url"]
+                    progress_data.append({
+                        "index": idx + 1, "speaker": res["speaker"], "status": "Generated via D-ID",
+                        "text": res["text"][:60] + "..." if len(res["text"]) > 60 else res["text"]
+                    })
+                else:
+                    return {"response": jsonify({"error": f"Failed segment {res['index']+1}: {res.get('error')}"}), "status": 500}
+                    
+        final_video_files = [f for f in final_video_files if f is not None]
+        output_file = OUTPUT_DIR / f"{podcast_name}.mp4"
+        
+        from database import BGM_DIR
+        bg_music_path = BGM_DIR / f"{bg_music}.mp3" if bg_music != "none" else None
+        merge_avatar_videos(final_video_files, output_file, str(bg_music_path) if bg_music_path else None)
+        
+        for task in tasks:
+            try:
+                if task["output_path"].exists(): task["output_path"].unlink()
+            except: pass
+            
+        history_entry = {
+            "id": datetime.now().strftime("%Y%m%d%H%M%S"),
+            "title": title + " [VIDEO]",
+            "filename": output_file.name,
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "script": script
+        }
+        save_history_data(history_entry)
+        
+        progress_data.sort(key=lambda x: x["index"])
+        return jsonify({
+            "success": True, "filename": output_file.name,
+            "file_size": f"{output_file.stat().st_size / 1024 / 1024:.2f} MB",
+            "total_segments": len(final_video_files), "progress": progress_data
         })
     except Exception as e:
         import traceback
