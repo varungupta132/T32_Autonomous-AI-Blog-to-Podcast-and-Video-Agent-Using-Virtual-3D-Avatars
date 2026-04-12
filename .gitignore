@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+
+# Data & Output
+generated_podcasts/
+temp_audio/
+bgm/
+*.mp3
+*.mp4
+*.wav
+
+# System
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

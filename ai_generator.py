@@ -3,12 +3,16 @@ from openai import OpenAI
 
 OPENAI_API_KEY = ""
 
-def generate_ai_podcast(content, title, ptype, audience):
+def generate_ai_podcast(content, title, ptype, audience, api_key=None):
     """Generate podcast script using OpenRouter API"""
     try:
+        current_api_key = api_key if api_key else OPENAI_API_KEY
+        if not current_api_key:
+            return {'success': False, 'error': "No OpenRouter API key provided."}
+            
         client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=OPENAI_API_KEY,
+            api_key=current_api_key,
         )
         
         if audience == "indian":

@@ -308,6 +308,14 @@
                     <label>Blog Content / Source Material</label>
                     <textarea id="content" rows="6" placeholder="Paste the full text here to be transformed into a dynamic conversation..."></textarea>
                 </div>
+                <!-- AI Engine Setup -->
+                <div class="form-group" style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="font-size: 1rem; color: #fff; margin-bottom: 10px;">🤖 AI Generator Engine</h3>
+                    <label style="color: var(--text-muted);">OpenRouter API Key (Required for writing script)</label>
+                    <input type="password" id="openRouterKey" placeholder="sk-or-v1-..." style="margin-bottom: 5px;">
+                    <small style="color: #FF8C00; font-size: 0.8rem; display: block;">Important: Required to generate any podcast scripts.</small>
+                </div>
+
                 <div class="form-group" style="margin-bottom: 1rem;">
                     <label>Language & Vibe</label>
                     <select id="language">
@@ -335,6 +343,13 @@
                     <label style="color: var(--text-muted);">D-ID API Key (for Video Generation)</label>
                     <input type="password" id="didApiKey" placeholder="Basic YXBpX2tleV9oZXJl...">
                     <small style="color: #FF8C00; font-size: 0.8rem; display: block; margin-top: 5px;">Required ONLY for generating deepfake avatars.</small>
+                    
+                    <label style="color: var(--text-muted); margin-top: 15px;">Video Rendering Mode</label>
+                    <select id="videoMode">
+                        <option value="did" selected>Professional (D-ID Lip-Sync)</option>
+                        <option value="fast">Fast Draft (Static Avatars)</option>
+                    </select>
+                    <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 5px;">'Fast Draft' is 10x faster and doesn't require cloud credits.</small>
                 </div>
                 
                 <button id="generateScriptBtn">
@@ -512,6 +527,12 @@
             const title = document.getElementById('title').value;
             const type = 'co-host';
             const language = document.getElementById('language').value;
+            const openrouterApiKey = document.getElementById('openRouterKey').value;
+
+            if(!openrouterApiKey) {
+                alert("Please provide an OpenRouter API Key in the AI Generator Engine section before proceeding!");
+                return;
+            }
 
             if (!content) {
                 alert("Please provide some source content first!"); return;
@@ -538,7 +559,7 @@
                 const res = await fetch('/api/ai-generate', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ content, title, podcast_type: type, audience: language })
+                    body: JSON.stringify({ content, title, podcast_type: type, audience: language, openrouter_api_key: openrouterApiKey })
                 });
                 const data = await res.json();
                 
@@ -602,7 +623,7 @@
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
                                     <span style="font-size: 0.85rem; color: var(--text-muted);">Avatar URL:</span>
-                                    <input type="text" class="avatar-url" data-speaker="${name}" placeholder="Image URL required for Video" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; flex: 1; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); max-width: 100%;">
+                                    <input type="text" class="avatar-url" data-speaker="${name}" value="https://create-images-results.d-id.com/api_docs/assets/noelle.jpeg" placeholder="Image URL required for Video" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; flex: 1; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); max-width: 100%;">
                                 </div>
                             </div>
                             <div style="margin-left: auto;">
@@ -721,6 +742,8 @@
             const language = document.getElementById('language').value;
             const bgMusic = document.getElementById('bgMusic').value;
             const title = document.getElementById('title').value;
+            const videoMode = document.getElementById('videoMode').value;
+            const fastMode = (videoMode === 'fast');
             
             const emotionSelects = document.querySelectorAll('.emotion-select');
             const emotionOverrides = {};
@@ -762,12 +785,12 @@
             audioResult.classList.remove('active');
 
             const loaderInt = animateLoading(audioStageText, [
-                "Preparing Voice Avatars...",
-                "Contacting D-ID API... (This takes a while)",
-                "Generating lip-sync movements...",
-                "Waiting for cloud rendering...",
-                "Downloading MP4 sequences...",
-                "Stitching Final Video via MoviePy..."
+                "Generating All Audio Tracks...",
+                "Batching segments by speaker (Optimization)...",
+                "Contacting D-ID API for batched playback...",
+                "Waiting for cloud rendering (2-4 tasks total)...",
+                "Downloading high-speed MP4 batches...",
+                "Executing Slice & Stitch Assembly..."
             ]);
 
             try {
@@ -777,7 +800,8 @@
                     body: JSON.stringify({ 
                         script, name: 'video_podcast', title, language, bg_music: bgMusic, 
                         emotion_overrides: emotionOverrides, voice_overrides: voiceOverrides,
-                        did_api_key: didApiKey, avatar_mapping: avatarMapping
+                        did_api_key: didApiKey, avatar_mapping: avatarMapping,
+                        fast_mode: fastMode
                     })
                 });
                 const data = await res.json();
