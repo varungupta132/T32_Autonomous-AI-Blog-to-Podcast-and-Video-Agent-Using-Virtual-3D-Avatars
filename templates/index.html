@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Podcast Studio</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-    <style>
         :root {
-            --primary: #FF4E00; /* Ember/Coral Orange */
+            /* Dark Theme (Default) */
+            --primary: #FF4E00;
             --primary-hover: #E03E00;
             --accent: #FF8C00;
             --bg-base: #0a0a0a;
@@ -16,7 +16,18 @@
             --text-main: #f8f8f8;
             --text-muted: #9e9e9e;
             --border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(0, 0, 0, 0.3);
             --glass-blur: blur(20px);
+        }
+
+        [data-theme="light"] {
+            --bg-base: #f0f2f5;
+            --surface: rgba(255, 255, 255, 0.8);
+            --surface-hover: rgba(255, 255, 255, 0.9);
+            --text-main: #1a1a1b;
+            --text-muted: #5f6368;
+            --border: rgba(0, 0, 0, 0.1);
+            --input-bg: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -128,10 +139,10 @@
         input, textarea, select {
             width: 100%;
             padding: 1rem 1.2rem;
-            background: rgba(0, 0, 0, 0.3);
+            background: var(--input-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
-            color: white;
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -280,6 +291,26 @@
         .history-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
         .history-scroll::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.5); border-radius: 10px; }
 
+        /* Theme Toggle */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 2.5rem;
+            right: 2.5rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .theme-toggle-btn:hover { background: var(--primary); color: white; transform: rotate(15deg); }
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -291,6 +322,9 @@
     </div>
 
     <div class="container">
+        <button class="theme-toggle-btn" id="themeToggle" title="Switch Theme">
+            <svg id="themeIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
         <header>
             <h1 class="title-gradient">🎙️ AI Podcast Studio</h1>
             <p style="color: var(--text-muted); font-size: 1.25rem;">Stunning, multilingual, and emotionally expressive.</p>
@@ -446,6 +480,22 @@
         const btnScriptText = document.getElementById('btnScriptText');
         const btnAudioText = document.getElementById('btnAudioText');
         const btnVideoText = document.getElementById('btnVideoText');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Theme Switcher
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            // Update Icon
+            if (newTheme === 'light') {
+                themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+            } else {
+                themeIcon.innerHTML = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+            }
+        });
 
         // Audio Visualizer Setup
         const canvas = document.getElementById('visualizer');
@@ -903,6 +953,56 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadHistory);
+        // Initialize History on Load
+        loadHistory();
+
+        async function loadHistory() {
+            const container = document.getElementById('projectHistoryContainer');
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                
+                if(data.success && data.history.length > 0) {
+                    container.innerHTML = '';
+                    data.history.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'history-item';
+                        div.innerHTML = `
+                            <div>
+                                <div class="history-title">${item.title}</div>
+                                <div class="history-meta">${item.audience.toUpperCase()} | ${item.file_size} | ${item.timestamp}</div>
+                            </div>
+                            <div class="history-actions">
+                                <button class="history-btn" onclick="playPodcast('${item.filename}')">Play</button>
+                                <a href="/api/download/${item.filename}" class="history-btn">Download</a>
+                                <button class="history-btn" style="border-color: #ef4444; color: #ef4444;" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No history found. Start generating!</p>';
+                }
+            } catch(e) {
+                container.innerHTML = '<p style="color: #ef4444;">Failed to load history.</p>';
+            }
+        }
+
+        window.playPodcast = (filename) => {
+            audioPlayer.src = '/api/stream/' + filename;
+            audioPlayer.play();
+            audioResult.classList.add('active');
+            audioResult.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.deleteHistoryItem = async (pid) => {
+            if(!confirm("Are you sure you want to delete this podcast?")) return;
+            try {
+                const res = await fetch(`/api/history/delete/${pid}`, { method: 'DELETE' });
+                const data = await res.json();
+                if(data.success) loadHistory();
+            } catch(e) { alert("Delete failed"); }
+        };
     </script>
 </body>
 </html>

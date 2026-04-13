@@ -22,6 +22,7 @@ from flask import Flask, render_template, request, jsonify, send_file
 import edge_tts
 import asyncio
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from database_service import init_db, save_podcast_data, get_podcast_history, remove_podcast_entry
 
 # ============================================================================
 # CONFIGURATION
@@ -68,6 +69,7 @@ TEMP_DIR.mkdir(exist_ok=True)
 # ============================================================================
 
 app = Flask(__name__)
+init_db()  # Initialize SQLite Database
 
 # ============================================================================
 # OPENROUTER AI FUNCTIONS
@@ -252,35 +254,42 @@ def detect_speakers(dialogues, language="global"):
     return speaker_voices
 
 def analyze_emotion(text):
-    """Detect emotion for voice modulation"""
+    """Advanced emotion detection for authentic voice modulation"""
     text_lower = text.lower()
     
-    if any(word in text_lower for word in ['wow', 'amazing', 'incredible', 'awesome', 'fantastic', 
-                                             'zabardast', 'kya baat', '!!', 'bahut accha']):
-        return "excited"
-    elif '?' in text or any(word in text_lower for word in ['kya', 'really', 'sach', 'how', 'why']):
+    # Happy / Excited
+    if any(word in text_lower for word in ['wow', 'amazing', 'great', 'awesome', 'happy', 'yay', 'love']):
+        return "happy"
+    # Sad / Empathetic
+    if any(word in text_lower for word in ['sad', 'sorry', 'unfortunate', 'regret', 'lose', 'miss']):
+        return "sad"
+    # Serious / Authoritative
+    if any(word in text_lower for word in ['critical', 'important', 'must', 'however', 'careful']):
+        return "serious"
+    # Curious / Questioning
+    if '?' in text:
         return "curious"
-    elif any(word in text_lower for word in ['important', 'must', 'critical', 'zaruri', 'bilkul']):
-        return "emphasis"
-    elif any(word in text_lower for word in ['think', 'believe', 'perhaps', 'maybe', 'shayad']):
-        return "thoughtful"
-    
+    # Urgent / Fast-paced
+    if any(word in text_lower for word in ['fast', 'quick', 'now', 'today', 'immediately', 'run']):
+        return "urgent"
+        
     return "neutral"
 
 def get_voice_params(emotion):
-    """Get voice parameters based on emotion"""
+    """Map emotions to EdgeTTS voice parameters (rate, pitch, volume)"""
     params = {
-        "excited": {"rate": "+15%", "pitch": "+5Hz"},
-        "curious": {"rate": "+5%", "pitch": "+3Hz"},
-        "emphasis": {"rate": "+0%", "pitch": "+2Hz"},
-        "thoughtful": {"rate": "-10%", "pitch": "-2Hz"},
-        "neutral": {"rate": "+0%", "pitch": "+0Hz"}
+        "happy": {"rate": "+20%", "pitch": "+8Hz", "volume": "+10%"},
+        "sad": {"rate": "-15%", "pitch": "-12Hz", "volume": "-15%"},
+        "serious": {"rate": "-5%", "pitch": "-5Hz", "volume": "+5%"},
+        "curious": {"rate": "+5%", "pitch": "+10Hz", "volume": "+0%"},
+        "urgent": {"rate": "+25%", "pitch": "+0Hz", "volume": "+0%"},
+        "neutral": {"rate": "+0%", "pitch": "+0Hz", "volume": "+0%"}
     }
     return params.get(emotion, params["neutral"])
 
-async def generate_audio_async(text, voice, rate, pitch, output_path):
+async def generate_audio_async(text, voice, rate, pitch, volume, output_path):
     """Generate audio using EdgeTTS"""
-    communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch)
+    communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, volume=volume)
     await communicate.save(str(output_path))
 
 def generate_audio_segment(speaker_voice, text, output_path):
@@ -299,6 +308,7 @@ def generate_audio_segment(speaker_voice, text, output_path):
                 voice=voice_info["voice"],
                 rate=params["rate"],
                 pitch=params["pitch"],
+                volume=params["volume"],
                 output_path=output_path
             ))
         finally:
@@ -517,6 +527,18 @@ def generate_podcast():
         print(f"{'='*60}\n")
         
         progress_data.sort(key=lambda x: x["index"])
+
+        # Save to History Database
+        try:
+            save_podcast_data(
+                title=title if title else podcast_name,
+                filename=output_file.name,
+                script=script,
+                audience=language,
+                file_size=f"{file_size:.2f} MB"
+            )
+        except Exception as e:
+            print(f"DB Error: {e}")
         
         return jsonify({
             "success": True,
@@ -561,6 +583,24 @@ def get_voices():
     return jsonify({
         "voices": VOICE_LIBRARY
     })
+
+@app.route('/api/history', methods=['GET'])
+def history():
+    """Get podcast generation history"""
+    try:
+        data = get_podcast_history()
+        return jsonify({"success": True, "history": data})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history/delete/<int:pid>', methods=['DELETE'])
+def delete_history_item(pid):
+    """Delete a history item"""
+    try:
+        remove_podcast_entry(pid)
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ============================================================================
 # MAIN
