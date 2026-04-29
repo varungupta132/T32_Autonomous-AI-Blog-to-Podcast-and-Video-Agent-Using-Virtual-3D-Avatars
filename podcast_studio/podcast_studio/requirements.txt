@@ -1,0 +1,8 @@
+flask==3.0.3
+edge-tts==6.1.12
+openai==1.35.7
+requests==2.32.3
+beautifulsoup4==4.12.3
+PyPDF2==3.0.1
+pydub==0.25.1
+gunicorn==22.0.0

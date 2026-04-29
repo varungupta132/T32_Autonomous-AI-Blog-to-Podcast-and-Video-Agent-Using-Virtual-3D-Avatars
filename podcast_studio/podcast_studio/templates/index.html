@@ -1,0 +1,869 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Podcast Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;
+  --card:rgba(18,16,40,0.75);
+  --accent:#8B5CF6;
+  --cyan:#06B6D4;
+  --text:#E2E0F0;
+  --muted:#7C7A9A;
+  --border:rgba(139,92,246,0.15);
+  --orb1:#7C3AED;
+  --orb2:#06B6D4;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden}
+.orb-wrap{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:0.3;animation:orbFloat 12s ease-in-out infinite}
+.orb1{width:520px;height:520px;background:var(--orb1);top:-120px;left:-100px;animation-delay:0s}
+.orb2{width:420px;height:420px;background:var(--orb2);bottom:-100px;right:-80px;animation-delay:-6s}
+.orb3{width:300px;height:300px;background:var(--orb1);top:40%;left:55%;animation-delay:-3s;opacity:0.18}
+@keyframes orbFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(30px,-40px) scale(1.05)}66%{transform:translate(-20px,30px) scale(0.97)}}
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+header{padding:28px 40px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{font-size:2.2rem;animation:logoPulse 3s ease-in-out infinite}
+@keyframes logoPulse{0%,100%{filter:drop-shadow(0 0 8px var(--accent))}50%{filter:drop-shadow(0 0 22px var(--accent)) drop-shadow(0 0 40px var(--cyan))}}
+.logo-text h1{font-family:'Outfit',sans-serif;font-size:1.75rem;font-weight:800;background:linear-gradient(90deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
+.logo-text p{font-size:0.78rem;color:var(--muted);margin-top:2px;letter-spacing:0.04em}
+nav{display:flex;gap:6px;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:50px;padding:5px}
+.nav-tab{padding:8px 22px;border-radius:50px;border:none;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:500;cursor:pointer;transition:all 0.25s;white-space:nowrap}
+.nav-tab.active{background:linear-gradient(135deg,var(--accent),#6D28D9);color:#fff;box-shadow:0 0 18px rgba(139,92,246,0.45)}
+.nav-tab:hover:not(.active){color:var(--text);background:rgba(139,92,246,0.1)}
+main{flex:1;padding:32px 40px 60px;max-width:860px;margin:0 auto;width:100%}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 32px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);margin-bottom:20px}
+.section-label{font-size:0.72rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.input{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:12px;padding:12px 16px;color:var(--text);font-family:'Inter',sans-serif;font-size:0.92rem;outline:none;transition:border-color 0.2s,box-shadow 0.2s}
+.input:focus{border-color:rgba(139,92,246,0.5);box-shadow:0 0 0 3px rgba(139,92,246,0.12)}
+.input::placeholder{color:var(--muted)}
+textarea.input{resize:vertical;min-height:140px;line-height:1.6}
+textarea.mono{font-family:'Courier New',monospace;font-size:0.85rem;min-height:280px}
+.toggle-group{display:flex;gap:6px;flex-wrap:wrap}
+.toggle-btn{padding:8px 18px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:0.85rem;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.toggle-btn:hover{background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.4);color:var(--text)}
+.toggle-btn.active{background:rgba(139,92,246,0.25);border-color:var(--accent);color:#fff;box-shadow:0 0 10px rgba(139,92,246,0.25)}
+.source-panel{display:none;margin-top:14px}.source-panel.active{display:block}
+.drop-zone{border:2px dashed rgba(139,92,246,0.3);border-radius:14px;padding:36px;text-align:center;cursor:pointer;transition:all 0.25s;background:rgba(139,92,246,0.04)}
+.drop-zone:hover,.drop-zone.drag-over{border-color:var(--accent);background:rgba(139,92,246,0.1)}
+.drop-zone .dz-icon{font-size:2.2rem;margin-bottom:8px}
+.drop-zone p{color:var(--muted);font-size:0.88rem}
+.drop-zone p span{color:var(--accent);cursor:pointer;text-decoration:underline}
+#pdf-file-input{display:none}
+.url-row{display:flex;gap:10px}
+.url-row .input{flex:1}
+.lang-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.lang-pill{padding:7px 16px;border-radius:50px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:0.83rem;cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif}
+.lang-pill.active{background:rgba(6,182,212,0.2);border-color:var(--cyan);color:var(--cyan)}
+.lang-pill:hover:not(.active){border-color:rgba(6,182,212,0.4);color:var(--text)}
+select.input{cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 28px;border-radius:50px;border:none;font-family:'Inter',sans-serif;font-size:0.92rem;font-weight:600;cursor:pointer;transition:all 0.25s}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#6D28D9);color:#fff;box-shadow:0 0 20px rgba(139,92,246,0.4)}
+.btn-primary:hover{box-shadow:0 0 32px rgba(139,92,246,0.65);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-primary:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:rgba(139,92,246,0.4);color:var(--text)}
+.btn-cyan{background:linear-gradient(135deg,var(--cyan),#0891B2);color:#fff;box-shadow:0 0 18px rgba(6,182,212,0.35)}
+.btn-cyan:hover{box-shadow:0 0 28px rgba(6,182,212,0.55);transform:translateY(-1px)}
+.btn-full{width:100%;margin-top:8px}
+.divider{height:1px;background:var(--border);margin:22px 0}
+#progress-section{display:none;margin-top:20px}
+.progress-bar-wrap{background:rgba(255,255,255,0.06);border-radius:50px;height:8px;overflow:hidden;margin-bottom:16px}
+.progress-bar-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--accent),var(--cyan));width:0%;transition:width 0.4s ease;position:relative;overflow:hidden}
+.progress-bar-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);animation:shimmer 1.5s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.progress-label{font-size:0.82rem;color:var(--muted);margin-bottom:12px}
+.segment-log{max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.segment-log::-webkit-scrollbar{width:4px}
+.segment-log::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.3);border-radius:4px}
+.seg-item{background:rgba(255,255,255,0.04);border-radius:10px;padding:8px 12px;font-size:0.8rem;border-left:3px solid var(--accent);animation:fadeIn 0.3s ease}
+.seg-meta{display:flex;gap:8px;margin-bottom:3px;align-items:center}
+.seg-speaker{color:var(--accent);font-weight:600}
+.seg-emotion{color:var(--cyan);font-size:0.72rem;background:rgba(6,182,212,0.12);padding:1px 7px;border-radius:50px}
+.seg-text{color:var(--muted);line-height:1.4}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+#result-section{display:none;margin-top:20px}
+.stats-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+.stat-box{flex:1;min-width:100px;background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:14px;padding:16px;text-align:center}
+.stat-val{font-family:'Outfit',sans-serif;font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.stat-lbl{font-size:0.72rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:0.06em}
+audio{width:100%;margin-bottom:16px;border-radius:12px;accent-color:var(--accent)}
+.result-actions{display:flex;gap:10px;flex-wrap:wrap}
+.history-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.history-header h2{font-family:'Outfit',sans-serif;font-size:1.2rem;font-weight:700}
+.history-list{display:flex;flex-direction:column;gap:12px}
+.hist-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 22px;backdrop-filter:blur(20px);display:flex;flex-direction:column;gap:10px}
+.hist-meta{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.hist-name{font-weight:600;font-size:0.92rem;color:var(--text);word-break:break-all}
+.hist-info{display:flex;gap:12px;font-size:0.78rem;color:var(--muted)}
+.hist-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.hist-actions audio{flex:1;min-width:200px;height:36px}
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-state .es-icon{font-size:3rem;margin-bottom:12px;opacity:0.5}
+.empty-state p{font-size:0.9rem}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.mt8{margin-top:8px}.mt14{margin-top:14px}.mt20{margin-top:20px}
+.flex-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.hidden{display:none!important}
+.status-msg{font-size:0.82rem;padding:8px 14px;border-radius:10px;margin-top:10px}
+.status-msg.error{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);color:#FCA5A5}
+.status-msg.success{background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.25);color:var(--cyan)}
+@media(max-width:600px){
+  header{padding:20px 20px 0}
+  main{padding:24px 20px 50px}
+  .card{padding:20px}
+  .stat-val{font-size:1.4rem}
+  .btn{padding:11px 20px;font-size:0.85rem}
+}
+
+video{width:100%;border-radius:14px;margin-bottom:16px;background:#000}
+.btn-video{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;box-shadow:0 0 18px rgba(245,158,11,0.35)}
+.btn-video:hover{box-shadow:0 0 28px rgba(245,158,11,0.55);transform:translateY(-1px)}
+.btn-video:disabled{opacity:0.5;cursor:not-allowed;transform:none;box-shadow:none}
+#video-progress-section{display:none;margin-top:20px}
+#video-result-section{display:none;margin-top:20px}
+.video-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);color:#fbbf24;font-size:0.75rem;padding:3px 10px;border-radius:50px;margin-left:8px}
+</style>
+</head>
+<body>
+<div class="orb-wrap">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+</div>
+<div id="app">
+  <header>
+    <div class="logo-area">
+      <div class="logo-icon">🎙️</div>
+      <div class="logo-text">
+        <h1>Podcast Studio</h1>
+        <p>AI-powered audio content creation</p>
+      </div>
+    </div>
+    <nav>
+      <button class="nav-tab active" onclick="switchTab('studio')" id="tab-studio">🎚️ Studio</button>
+      <button class="nav-tab" onclick="switchTab('history')" id="tab-history">📚 History</button>
+    </nav>
+  </header>
+  <main>
+
+    <!-- STUDIO TAB -->
+    <div class="tab-panel active" id="panel-studio">
+
+      <!-- STEP 1 -->
+      <div id="step1">
+        <div class="card">
+          <!-- Episode Title -->
+          <div class="section-label">Episode Title</div>
+          <input type="text" id="episode-title" class="input" placeholder="e.g. The Future of AI in Healthcare">
+
+          <div class="divider"></div>
+
+          <!-- Content Source -->
+          <div class="section-label">Content Source</div>
+          <div class="toggle-group">
+            <button class="toggle-btn active" onclick="setSource('paste')" id="src-paste">📝 Paste</button>
+            <button class="toggle-btn" onclick="setSource('pdf')" id="src-pdf">📄 PDF / TXT</button>
+          </div>
+
+          <!-- Paste Panel -->
+          <div class="source-panel active" id="panel-paste">
+            <textarea class="input" id="paste-content" placeholder="Paste your article, notes, or any content here..."></textarea>
+          </div>
+
+          <!-- PDF / TXT Panel -->
+          <div class="source-panel" id="panel-pdf">
+            <div class="drop-zone" id="drop-zone" onclick="document.getElementById('pdf-file-input').click()"
+                 ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+              <div class="dz-icon">📄</div>
+              <p>Drag &amp; drop a <strong style="color:var(--accent)">PDF or TXT</strong> file here, or <span>browse</span></p>
+              <p id="pdf-status" style="margin-top:8px;color:var(--accent);font-size:0.8rem"></p>
+            </div>
+            <input type="file" id="pdf-file-input" accept=".pdf,.txt" onchange="uploadFile(this.files[0])">
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Language -->
+          <div class="section-label">Language</div>
+          <div class="lang-row">
+            <button class="lang-pill active" onclick="setLang('english', this)">🇬🇧 English</button>
+            <button class="lang-pill" onclick="setLang('hinglish', this)">🇮🇳 Hinglish</button>
+            <button class="lang-pill" onclick="setLang('hindi', this)">🇮🇳 Hindi</button>
+            <select class="input" id="lang-more" onchange="setLangFromSelect(this)" style="width:auto;padding:7px 36px 7px 14px;font-size:0.83rem;border-radius:50px">
+              <option value="">More languages...</option>
+              <optgroup label="European">
+                <option value="spanish">Spanish</option>
+                <option value="french">French</option>
+                <option value="german">German</option>
+                <option value="italian">Italian</option>
+                <option value="portuguese">Portuguese</option>
+                <option value="dutch">Dutch</option>
+                <option value="polish">Polish</option>
+                <option value="russian">Russian</option>
+                <option value="swedish">Swedish</option>
+                <option value="norwegian">Norwegian</option>
+                <option value="danish">Danish</option>
+                <option value="finnish">Finnish</option>
+                <option value="greek">Greek</option>
+                <option value="czech">Czech</option>
+                <option value="romanian">Romanian</option>
+                <option value="hungarian">Hungarian</option>
+                <option value="ukrainian">Ukrainian</option>
+                <option value="turkish">Turkish</option>
+              </optgroup>
+              <optgroup label="Asian">
+                <option value="japanese">Japanese</option>
+                <option value="chinese">Chinese (Mandarin)</option>
+                <option value="korean">Korean</option>
+                <option value="thai">Thai</option>
+                <option value="vietnamese">Vietnamese</option>
+                <option value="indonesian">Indonesian</option>
+                <option value="malay">Malay</option>
+                <option value="tagalog">Tagalog</option>
+                <option value="bengali">Bengali</option>
+                <option value="tamil">Tamil</option>
+                <option value="telugu">Telugu</option>
+                <option value="marathi">Marathi</option>
+                <option value="gujarati">Gujarati</option>
+                <option value="kannada">Kannada</option>
+                <option value="malayalam">Malayalam</option>
+                <option value="punjabi">Punjabi</option>
+                <option value="urdu">Urdu</option>
+                <option value="nepali">Nepali</option>
+                <option value="sinhala">Sinhala</option>
+                <option value="burmese">Burmese</option>
+                <option value="khmer">Khmer</option>
+              </optgroup>
+              <optgroup label="Middle East &amp; Africa">
+                <option value="arabic">Arabic</option>
+                <option value="hebrew">Hebrew</option>
+                <option value="persian">Persian (Farsi)</option>
+                <option value="swahili">Swahili</option>
+                <option value="amharic">Amharic</option>
+                <option value="hausa">Hausa</option>
+                <option value="yoruba">Yoruba</option>
+                <option value="zulu">Zulu</option>
+              </optgroup>
+              <optgroup label="Americas">
+                <option value="brazilian portuguese">Brazilian Portuguese</option>
+                <option value="mexican spanish">Mexican Spanish</option>
+                <option value="catalan">Catalan</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Format -->
+          <div class="section-label">Podcast Format</div>
+          <div class="toggle-group">
+            <button class="toggle-btn" onclick="setFormat('solo', this)" id="fmt-solo">👤 Solo</button>
+            <button class="toggle-btn active" onclick="setFormat('two_hosts', this)" id="fmt-two">👥 Two Hosts</button>
+            <button class="toggle-btn" onclick="setFormat('panel', this)" id="fmt-panel">🎭 Panel 3</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Generate Script Button -->
+          <button class="btn btn-primary btn-full" onclick="generateScript()" id="gen-script-btn">
+            ✨ Generate Script
+          </button>
+          <div id="step1-status"></div>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div id="step2" class="hidden">
+        <div class="card">
+          <div class="section-label">Generated Script</div>
+          <textarea class="input mono" id="script-textarea" placeholder="Your AI-generated script will appear here..."></textarea>
+
+          <div class="divider"></div>
+
+          <div class="section-label">Output File Name</div>
+          <input type="text" id="file-name" class="input" placeholder="my-podcast-episode">
+
+          <div class="divider"></div>
+
+          <div class="flex-row">
+            <button class="btn btn-primary" onclick="generatePodcast()" id="gen-podcast-btn">🎵 Generate Podcast</button>
+            <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div id="progress-section" class="card">
+          <div class="section-label">Generating Audio</div>
+          <div class="progress-label" id="progress-label">Initializing...</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress-bar"></div>
+          </div>
+          <div class="segment-log" id="segment-log"></div>
+        </div>
+
+        <!-- Result -->
+        <div id="result-section" class="card">
+          <div class="section-label">Your Podcast is Ready</div>
+          <div class="stats-row">
+            <div class="stat-box">
+              <div class="stat-val" id="stat-segments">—</div>
+              <div class="stat-lbl">Segments</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-val" id="stat-speakers">—</div>
+              <div class="stat-lbl">Speakers</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-val" id="stat-size">—</div>
+              <div class="stat-lbl">Size</div>
+            </div>
+          </div>
+          <audio id="result-audio" controls></audio>
+          <div class="result-actions">
+            <a id="download-btn" class="btn btn-cyan" href="#" download>⬇️ Download MP3</a><div class="divider"></div><div class="section-label">🎬 Avatar Video <span class="video-badge">✨ Free · GPU</span></div><p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px">Generate a real podcast video with talking avatars using Wav2Lip. Takes ~2-5 min.</p><button class="btn btn-video btn-full" onclick="generateVideo()" id="gen-video-btn">🎬 Generate Avatar Video</button><div id="video-status"></div>
+            <button class="btn btn-ghost" id="share-btn" onclick="sharePodcast(this)" data-filename="">🔗 Share</button>
+            <button class="btn btn-ghost" onclick="newPodcast()">🎙️ New Podcast</button>
+          </div>
+        </div>
+      </div>
+
+
+        <!-- Video Progress -->
+        <div id="video-progress-section" class="card">
+          <div class="section-label">🎬 Generating Avatar Video</div>
+          <div class="progress-label" id="video-progress-label">Initializing Wav2Lip...</div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="video-progress-bar" style="background:linear-gradient(90deg,#f59e0b,#d97706)"></div>
+          </div>
+          <p style="font-size:0.78rem;color:var(--muted);margin-top:8px">⚡ Using RTX 3050 GPU · This may take a few minutes</p>
+        </div>
+
+        <!-- Video Result -->
+        <div id="video-result-section" class="card">
+          <div class="section-label">🎬 Your Avatar Podcast Video is Ready</div>
+          <div class="stats-row">
+            <div class="stat-box"><div class="stat-val" id="vstat-segments">—</div><div class="stat-lbl">Segments</div></div>
+            <div class="stat-box"><div class="stat-val" id="vstat-speakers">—</div><div class="stat-lbl">Speakers</div></div>
+            <div class="stat-box"><div class="stat-val" id="vstat-size">—</div><div class="stat-lbl">Size</div></div>
+          </div>
+          <video id="result-video" controls></video>
+          <div class="result-actions">
+            <a id="video-download-btn" class="btn btn-video" href="#" download>⬇️ Download MP4</a>
+            <button class="btn btn-ghost" onclick="newPodcast()">🎙️ New Podcast</button>
+          </div>
+        </div>
+    </div><!-- /panel-studio -->
+
+    <!-- HISTORY TAB -->
+    <div class="tab-panel" id="panel-history">
+      <div class="history-header">
+        <h2>📚 Episode History</h2>
+        <button class="btn btn-ghost" onclick="loadHistory()" style="padding:8px 18px;font-size:0.83rem">🔄 Refresh</button>
+      </div>
+      <div id="history-list">
+        <div class="empty-state">
+          <div class="es-icon">📭</div>
+          <p>No episodes yet. Create your first podcast!</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+const state = {
+  source: 'paste',
+  language: 'english',
+  format: 'two_hosts',
+  currentFilename: null
+};
+
+// ── Tab switching ──────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'history') loadHistory();
+}
+
+// ── Source toggle ──────────────────────────────────────────────────────────
+function setSource(src) {
+  state.source = src;
+  document.querySelectorAll('[id^="src-"]').forEach(b => b.classList.remove('active'));
+  document.getElementById('src-' + src).classList.add('active');
+  document.querySelectorAll('.source-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + src).classList.add('active');
+}
+
+// ── Language ───────────────────────────────────────────────────────────────
+function setLang(lang, el) {
+  state.language = lang;
+  document.querySelectorAll('.lang-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('lang-more').value = '';
+}
+
+function setLangFromSelect(sel) {
+  if (!sel.value) return;
+  state.language = sel.value;
+  document.querySelectorAll('.lang-pill').forEach(p => p.classList.remove('active'));
+}
+
+// ── Format toggle ──────────────────────────────────────────────────────────
+function setFormat(fmt, el) {
+  state.format = fmt;
+  document.querySelectorAll('[id^="fmt-"]').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+}
+
+// ── File upload (PDF + TXT) ────────────────────────────────────────────────
+function handleDragOver(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.add('drag-over');
+}
+function handleDragLeave(e) {
+  document.getElementById('drop-zone').classList.remove('drag-over');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) uploadFile(file);
+}
+
+async function uploadFile(file) {
+  if (!file) return;
+  const status = document.getElementById('pdf-status');
+  const ext = file.name.split('.').pop().toLowerCase();
+
+  // TXT — read directly in browser, no server needed
+  if (ext === 'txt') {
+    status.textContent = '⏳ Reading file...';
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('paste-content').value = e.target.result;
+      if (!document.getElementById('episode-title').value) {
+        document.getElementById('episode-title').value = file.name.replace(/\.txt$/i, '');
+      }
+      status.textContent = '✅ ' + escapeText(file.name) + ' loaded';
+      status.style.color = 'var(--cyan)';
+      // Switch to paste panel to show content
+      setSource('paste');
+      document.getElementById('src-paste').classList.add('active');
+    };
+    reader.onerror = function() {
+      status.textContent = '❌ Failed to read file';
+      status.style.color = '#FCA5A5';
+    };
+    reader.readAsText(file);
+    return;
+  }
+
+  // PDF — send to backend
+  if (ext === 'pdf') {
+    status.textContent = '⏳ Extracting PDF...';
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch('/api/upload-pdf', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('paste-content').value = data.content || '';
+        if (data.title && !document.getElementById('episode-title').value) {
+          document.getElementById('episode-title').value = escapeText(data.title);
+        }
+        status.textContent = '✅ ' + escapeText(file.name) + ' loaded';
+        status.style.color = 'var(--cyan)';
+        setSource('paste');
+        document.getElementById('src-paste').classList.add('active');
+      } else {
+        status.textContent = '❌ ' + escapeText(data.error || 'Upload failed');
+        status.style.color = '#FCA5A5';
+      }
+    } catch (err) {
+      status.textContent = '❌ Network error';
+      status.style.color = '#FCA5A5';
+    }
+    return;
+  }
+
+  status.textContent = '❌ Only PDF and TXT files are supported';
+  status.style.color = '#FCA5A5';
+}
+
+// ── Get content ────────────────────────────────────────────────────────────
+function getContent() {
+  return document.getElementById('paste-content').value.trim();
+}
+
+// ── Generate Script ────────────────────────────────────────────────────────
+async function generateScript() {
+  const content = getContent();
+  const title = document.getElementById('episode-title').value.trim();
+  if (!content) {
+    showStep1Status('Please provide some content first.', 'error');
+    return;
+  }
+  const btn = document.getElementById('gen-script-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  clearStep1Status();
+  try {
+    const res = await fetch('/api/ai-generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content,
+        title: title || 'Podcast Episode',
+        podcast_type: state.format,
+        language: state.language
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.script) {
+      document.getElementById('script-textarea').value = data.script;
+      const safeName = (title || 'podcast').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      document.getElementById('file-name').value = safeName || 'podcast-episode';
+      showStep2();
+    } else {
+      showStep1Status(data.error || 'Script generation failed.', 'error');
+    }
+  } catch (err) {
+    showStep1Status('Network error. Please try again.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generate Script';
+  }
+}
+
+function showStep1Status(msg, type) {
+  const el = document.getElementById('step1-status');
+  el.innerHTML = '<div class="status-msg ' + type + '">' + escapeHTML(msg) + '</div>';
+}
+function clearStep1Status() {
+  document.getElementById('step1-status').innerHTML = '';
+}
+
+// ── Step navigation ────────────────────────────────────────────────────────
+function showStep2() {
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.remove('hidden');
+  document.getElementById('progress-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'none';
+}
+function goBack() {
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+}
+
+// ── Generate Podcast ───────────────────────────────────────────────────────
+async function generatePodcast() {
+  const script = document.getElementById('script-textarea').value.trim();
+  const name = document.getElementById('file-name').value.trim() || 'podcast-episode';
+  if (!script) {
+    alert('Script is empty.');
+    return;
+  }
+  const btn = document.getElementById('gen-podcast-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+  // Reset UI
+  document.getElementById('progress-section').style.display = 'block';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('segment-log').innerHTML = '';
+  setProgress(0, 'Starting audio generation...');
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ script, name, language: state.language })
+    });
+    const data = await res.json();
+    if (data.success) {
+      state.currentFilename = data.filename;
+      // Render progress segments
+      if (data.progress && data.progress.length) {
+        const total = data.progress.length;
+        data.progress.forEach((seg, i) => {
+          setTimeout(() => {
+            addSegment(seg);
+            setProgress(Math.round(((i + 1) / total) * 100), 'Processing segment ' + (i + 1) + ' of ' + total);
+          }, i * 80);
+        });
+        setTimeout(() => showResult(data), data.progress.length * 80 + 200);
+      } else {
+        setProgress(100, 'Done!');
+        showResult(data);
+      }
+    } else {
+      setProgress(0, 'Error: ' + escapeText(data.error || 'Generation failed'));
+      btn.disabled = false;
+      btn.innerHTML = '🎵 Generate Podcast';
+    }
+  } catch (err) {
+    setProgress(0, 'Network error. Please try again.');
+    btn.disabled = false;
+    btn.innerHTML = '🎵 Generate Podcast';
+  }
+}
+
+function setProgress(pct, label) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = label;
+}
+
+function addSegment(seg) {
+  const log = document.getElementById('segment-log');
+  const div = document.createElement('div');
+  div.className = 'seg-item';
+  div.innerHTML =
+    '<div class="seg-meta">' +
+    '<span class="seg-speaker">' + escapeHTML(seg.speaker || 'Narrator') + '</span>' +
+    (seg.emotion ? '<span class="seg-emotion">' + escapeHTML(seg.emotion) + '</span>' : '') +
+    '</div>' +
+    '<div class="seg-text">' + escapeHTML(seg.text || '') + '</div>';
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+
+function showResult(data) {
+  document.getElementById('stat-segments').textContent = data.total_segments || '—';
+  document.getElementById('stat-speakers').textContent = data.speakers || '—';
+  document.getElementById('stat-size').textContent = data.file_size || '—';
+
+  const audioUrl = '/api/stream/' + encodeURIComponent(data.filename);
+  const audio = document.getElementById('result-audio');
+  audio.src = audioUrl;
+
+  const dlBtn = document.getElementById('download-btn');
+  dlBtn.href = '/api/download/' + encodeURIComponent(data.filename);
+  dlBtn.download = data.filename;
+
+  // Set filename on share button
+  document.getElementById('share-btn').dataset.filename = data.filename;
+
+  document.getElementById('result-section').style.display = 'block';
+  setProgress(100, '✅ Podcast ready!');
+
+  const btn = document.getElementById('gen-podcast-btn');
+  btn.disabled = false;
+  btn.innerHTML = '🎵 Generate Podcast';
+}
+
+function newPodcast() {
+  document.getElementById('step2').classList.add('hidden');
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('progress-section').style.display = 'none';
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('episode-title').value = '';
+  document.getElementById('paste-content').value = '';
+  document.getElementById('script-textarea').value = '';
+  document.getElementById('segment-log').innerHTML = '';
+  clearStep1Status();
+}
+
+// ── Share ──────────────────────────────────────────────────────────────────
+async function sharePodcast(btnEl) {
+  const filename = btnEl.dataset.filename;
+  if (!filename) { showShareToast('⚠️ No podcast to share yet'); return; }
+
+  const shareUrl = window.location.origin + '/api/stream/' + encodeURIComponent(filename);
+  const title = filename.replace(/\.mp3$/i, '').replace(/[-_]/g, ' ');
+
+  // Try native Web Share API (works on mobile)
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text: 'Listen to this AI podcast: ' + title, url: shareUrl });
+      return;
+    } catch (e) {
+      if (e.name === 'AbortError') return;
+    }
+  }
+
+  // Clipboard API (works on HTTPS or localhost)
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      showShareToast('🔗 Link copied to clipboard!');
+      return;
+    } catch (e) { /* fall through */ }
+  }
+
+  // Universal fallback — works everywhere including HTTP
+  const ta = document.createElement('textarea');
+  ta.value = shareUrl;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showShareToast('🔗 Link copied to clipboard!');
+  } catch (e) {
+    prompt('Copy this link to share:', shareUrl);
+  }
+  document.body.removeChild(ta);
+}
+
+function showShareToast(msg) {
+  let toast = document.getElementById('share-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'share-toast';
+    toast.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(18,16,40,0.95);border:1px solid rgba(139,92,246,0.4);color:#E2E0F0;padding:10px 22px;border-radius:50px;font-size:0.88rem;font-weight:500;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;backdrop-filter:blur(12px)';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2500);
+}
+
+// ── History ────────────────────────────────────────────────────────────────
+async function loadHistory() {
+  const container = document.getElementById('history-list');
+  container.innerHTML = '<div class="empty-state"><div class="es-icon">⏳</div><p>Loading...</p></div>';
+  try {
+    const res = await fetch('/api/history');
+    const data = await res.json();
+    if (!data.success || !data.history || data.history.length === 0) {
+      container.innerHTML = '<div class="empty-state"><div class="es-icon">📭</div><p>No episodes yet. Create your first podcast!</p></div>';
+      return;
+    }
+    container.innerHTML = '';
+    data.history.forEach(item => {
+      const sizeStr = item.size || '—';
+      const date = item.created || '—';
+      const div = document.createElement('div');
+      div.className = 'hist-item';
+      div.innerHTML =
+        '<div class="hist-meta">' +
+          '<div class="hist-name">🎵 ' + escapeHTML(item.filename) + '</div>' +
+          '<div class="hist-info">' +
+            '<span>💾 ' + escapeHTML(sizeStr) + '</span>' +
+            '<span>📅 ' + escapeHTML(date) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="hist-actions">' +
+          '<audio controls src="/api/stream/' + encodeURIComponent(item.filename) + '" style="flex:1;min-width:180px;height:36px"></audio>' +
+          '<a class="btn btn-cyan" href="/api/download/' + encodeURIComponent(item.filename) + '" download style="padding:8px 16px;font-size:0.82rem;text-decoration:none;white-space:nowrap">⬇️ Download</a>' +
+          '<button class="btn btn-ghost" onclick="sharePodcast(this)" data-filename="' + escapeHTML(item.filename) + '" style="padding:8px 16px;font-size:0.82rem;white-space:nowrap">🔗 Share</button>' +
+        '</div>';
+      container.appendChild(div);
+    });
+  } catch (err) {
+    container.innerHTML = '<div class="empty-state"><div class="es-icon">⚠️</div><p>Failed to load history.</p></div>';
+  }
+}
+
+// ── XSS helpers ────────────────────────────────────────────────────────────
+function escapeHTML(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+function escapeText(str) {
+  if (str == null) return '';
+  return String(str).replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ── Generate Video ────────────────────────────────────────────────────────
+async function generateVideo() {
+  const script = document.getElementById('script-textarea').value.trim();
+  const name = document.getElementById('file-name').value.trim() || 'podcast-episode';
+  if (!script) { alert('Script is empty.'); return; }
+
+  const btn = document.getElementById('gen-video-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating Video...';
+
+  document.getElementById('video-progress-section').style.display = 'block';
+  document.getElementById('video-result-section').style.display = 'none';
+  document.getElementById('video-status').innerHTML = '';
+  setVideoProgress(5, 'Generating audio segments...');
+
+  let fakePct = 5;
+  const msgs = ['Running Wav2Lip lip-sync...','Processing face detection...','Rendering avatar frames...','Composing video segments...','Mixing audio...','Almost done...'];
+  const fakeTimer = setInterval(() => {
+    if (fakePct < 85) {
+      fakePct += Math.random() * 2.5;
+      setVideoProgress(Math.min(fakePct, 85), msgs[Math.floor(fakePct / 15) % msgs.length]);
+    }
+  }, 3000);
+
+  try {
+    const res = await fetch('/api/generate-video', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ script, name, language: state.language })
+    });
+    const data = await res.json();
+    clearInterval(fakeTimer);
+    if (data.success) {
+      setVideoProgress(100, '✅ Video ready!');
+      showVideoResult(data);
+    } else {
+      // Check if it's a cloud/GPU unavailable error
+      const isCloudError = res.status === 503;
+      setVideoProgress(0, isCloudError ? '🖥️ Local GPU required' : '❌ ' + escapeText(data.error || 'Video generation failed'));
+      document.getElementById('video-status').innerHTML = isCloudError
+        ? '<div class="status-msg error">🖥️ <strong>Video generation requires local GPU.</strong><br>Run the app on your local machine with <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px">VIDEO_ENABLED=true</code> to use this feature.</div>'
+        : '<div class="status-msg error">' + escapeHTML(data.error || 'Failed') + '</div>';
+      document.getElementById('video-progress-section').style.display = 'none';
+      btn.disabled = false;
+      btn.innerHTML = '🎬 Generate Avatar Video';
+    }
+  } catch (err) {
+    clearInterval(fakeTimer);
+    setVideoProgress(0, '❌ Network error');
+    document.getElementById('video-progress-section').style.display = 'none';
+    btn.disabled = false;
+    btn.innerHTML = '🎬 Generate Avatar Video';
+  }
+}
+
+function setVideoProgress(pct, label) {
+  document.getElementById('video-progress-bar').style.width = pct + '%';
+  document.getElementById('video-progress-label').textContent = label;
+}
+
+function showVideoResult(data) {
+  document.getElementById('vstat-segments').textContent = data.total_segments || '—';
+  document.getElementById('vstat-speakers').textContent = data.speakers || '—';
+  document.getElementById('vstat-size').textContent = data.file_size || '—';
+  const video = document.getElementById('result-video');
+  video.src = '/api/stream-video/' + encodeURIComponent(data.filename);
+  const dlBtn = document.getElementById('video-download-btn');
+  dlBtn.href = '/api/download-video/' + encodeURIComponent(data.filename);
+  dlBtn.download = data.filename;
+  document.getElementById('video-result-section').style.display = 'block';
+  const btn = document.getElementById('gen-video-btn');
+  btn.disabled = false;
+  btn.innerHTML = '🎬 Generate Avatar Video';
+}
+</script>
+</body>
+</html>
