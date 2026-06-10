@@ -1,0 +1,17 @@
+# Audio Rendering Requirements
+
+# ElevenLabs for TTS
+elevenlabs==1.2.2
+
+# Audio processing
+pydub==0.25.1
+
+# FFmpeg (required by pydub)
+# Install separately:
+# Windows: choco install ffmpeg
+# Mac: brew install ffmpeg
+# Linux: sudo apt-get install ffmpeg
+
+# Optional: For better audio quality
+numpy==1.24.3
+scipy==1.11.4

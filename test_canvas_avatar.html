@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Canvas Avatar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+            text-align: center;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        .avatar-container {
+            display: inline-block;
+            margin: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+        }
+        canvas {
+            background: rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Canvas Avatar Test</h1>
+        <p>Testing simple 2D canvas avatars</p>
+        
+        <div class="avatar-container">
+            <h3>Speaker 1 - Alex</h3>
+            <canvas id="canvas1" width="350" height="350"></canvas>
+        </div>
+        
+        <div class="avatar-container">
+            <h3>Speaker 2 - Sam</h3>
+            <canvas id="canvas2" width="350" height="350"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button onclick="drawAvatars()">Draw Avatars</button>
+            <button onclick="animateAvatar1()">Animate Speaker 1</button>
+            <button onclick="animateAvatar2()">Animate Speaker 2</button>
+            <button onclick="stopAnimation()">Stop Animation</button>
+        </div>
+        
+        <div id="status" style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 5px;"></div>
+    </div>
+
+    <script>
+        let animationId = null;
+        let activeAvatar = 0;
+
+        function drawAvatar(ctx, width, height, index, mouthOpen = false) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+            
+            // Colors
+            const skinColor = index === 0 ? '#ffdbac' : '#f4c2c2';
+            const bodyColor = index === 0 ? '#4a90e2' : '#e24a90';
+            const hairColor = index === 0 ? '#4a3728' : '#8b4513';
+            
+            // Draw body
+            ctx.fillStyle = bodyColor;
+            ctx.beginPath();
+            ctx.ellipse(centerX, centerY + 80, 60, 100, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw neck
+            ctx.fillStyle = skinColor;
+            ctx.fillRect(centerX - 20, centerY + 20, 40, 40);
+            
+            // Draw head
+            ctx.fillStyle = skinColor;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 20, 70, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw hair
+            ctx.fillStyle = hairColor;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 50, 75, Math.PI, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw ears
+            ctx.fillStyle = skinColor;
+            ctx.beginPath();
+            ctx.ellipse(centerX - 70, centerY - 20, 15, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(centerX + 70, centerY - 20, 15, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw eyes
+            ctx.fillStyle = '#fff';
+            ctx.beginPath();
+            ctx.arc(centerX - 25, centerY - 30, 15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(centerX + 25, centerY - 30, 15, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw pupils
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(centerX - 25, centerY - 30, 8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(centerX + 25, centerY - 30, 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw eyebrows
+            ctx.strokeStyle = hairColor;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(centerX - 40, centerY - 50);
+            ctx.lineTo(centerX - 10, centerY - 45);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(centerX + 40, centerY - 50);
+            ctx.lineTo(centerX + 10, centerY - 45);
+            ctx.stroke();
+            
+            // Draw nose
+            ctx.strokeStyle = '#d4a574';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY - 10);
+            ctx.lineTo(centerX - 5, centerY + 5);
+            ctx.lineTo(centerX + 5, centerY + 5);
+            ctx.stroke();
+            
+            // Draw mouth
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            if (mouthOpen) {
+                // Open mouth (talking)
+                ctx.ellipse(centerX, centerY + 20, 25, 15, 0, 0, Math.PI * 2);
+                ctx.fillStyle = '#8b0000';
+                ctx.fill();
+            } else {
+                // Closed mouth (smiling)
+                ctx.arc(centerX, centerY + 10, 25, 0, Math.PI);
+            }
+            ctx.stroke();
+            
+            // Add shadow
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 5;
+            ctx.shadowOffsetY = 5;
+        }
+
+        function drawAvatars() {
+            const canvas1 = document.getElementById('canvas1');
+            const canvas2 = document.getElementById('canvas2');
+            const ctx1 = canvas1.getContext('2d');
+            const ctx2 = canvas2.getContext('2d');
+            
+            drawAvatar(ctx1, canvas1.width, canvas1.height, 0, false);
+            drawAvatar(ctx2, canvas2.width, canvas2.height, 1, false);
+            
+            document.getElementById('status').textContent = '✓ Avatars drawn successfully!';
+        }
+
+        function animateAvatar1() {
+            stopAnimation();
+            activeAvatar = 1;
+            animate();
+            document.getElementById('status').textContent = '🎤 Speaker 1 is talking...';
+        }
+
+        function animateAvatar2() {
+            stopAnimation();
+            activeAvatar = 2;
+            animate();
+            document.getElementById('status').textContent = '🎤 Speaker 2 is talking...';
+        }
+
+        function animate() {
+            const canvas1 = document.getElementById('canvas1');
+            const canvas2 = document.getElementById('canvas2');
+            const ctx1 = canvas1.getContext('2d');
+            const ctx2 = canvas2.getContext('2d');
+            
+            const mouthOpen1 = activeAvatar === 1 && Math.sin(Date.now() * 0.01) > 0;
+            const mouthOpen2 = activeAvatar === 2 && Math.sin(Date.now() * 0.01) > 0;
+            
+            drawAvatar(ctx1, canvas1.width, canvas1.height, 0, mouthOpen1);
+            drawAvatar(ctx2, canvas2.width, canvas2.height, 1, mouthOpen2);
+            
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            activeAvatar = 0;
+            drawAvatars();
+            document.getElementById('status').textContent = '⏸️ Animation stopped';
+        }
+
+        // Draw avatars on load
+        window.onload = () => {
+            drawAvatars();
+        };
+    </script>
+</body>
+</html>

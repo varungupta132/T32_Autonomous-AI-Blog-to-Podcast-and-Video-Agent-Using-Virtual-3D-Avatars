@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Animated Podcast Studio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            background: #f0f0ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e0e0ff;
+            border-color: #764ba2;
+        }
+
+        #audioFile {
+            display: none;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #avatarCanvas {
+            width: 100%;
+            height: 600px;
+            border-radius: 15px;
+            background: #000;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-group select,
+        .control-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .audio-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .audio-info.show {
+            display: block;
+        }
+
+        .recording-controls {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .recording-controls.show {
+            display: block;
+        }
+
+        .record-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background: red;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Animated Podcast Studio</h1>
+            <p>Upload audio and create animated podcast videos with 3D avatars</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Panel - Controls -->
+            <div class="card">
+                <div class="section-title">
+                    <span>📁</span>
+                    <span>Upload & Configure</span>
+                </div>
+
+                <!-- Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <div style="font-size: 3em; margin-bottom: 10px;">🎵</div>
+                    <div style="font-size: 1.2em; margin-bottom: 10px;">
+                        Drop audio file here or click to browse
+                    </div>
+                    <div style="color: #666;">
+                        Supports: MP3, WAV, OGG
+                    </div>
+                </div>
+                <input type="file" id="audioFile" accept="audio/*">
+
+                <!-- Audio Info -->
+                <div class="audio-info" id="audioInfo">
+                    <strong>📊 Audio Loaded:</strong>
+                    <div id="audioDetails"></div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls">
+                    <div class="control-group">
+                        <label>🎭 Avatar Model</label>
+                        <select id="avatarSelect">
+                            <option value="brunette">Brunette (Female)</option>
+                            <option value="male">Male Professional</option>
+                            <option value="female">Female Casual</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>😊 Mood</label>
+                        <select id="moodSelect">
+                            <option value="neutral">Neutral</option>
+                            <option value="happy">Happy</option>
+                            <option value="excited">Excited</option>
+                            <option value="serious">Serious</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>📹 Camera View</label>
+                        <select id="viewSelect">
+                            <option value="head">Head (Close-up)</option>
+                            <option value="upper">Upper Body</option>
+                            <option value="mid">Mid Shot</option>
+                            <option value="full">Full Body</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>🎨 Background</label>
+                        <select id="bgSelect">
+                            <option value="gradient">Gradient</option>
+                            <option value="studio">Studio</option>
+                            <option value="office">Office</option>
+                            <option value="outdoor">Outdoor</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" id="loadBtn" disabled>
+                        <span>🎭</span>
+                        <span>Load Avatar</span>
+                    </button>
+                    <button class="btn btn-primary" id="playBtn" disabled>
+                        <span>▶️</span>
+                        <span>Play Animation</span>
+                    </button>
+                    <button class="btn btn-secondary" id="stopBtn" disabled>
+                        <span>⏹️</span>
+                        <span>Stop</span>
+                    </button>
+                </div>
+
+                <!-- Recording Controls -->
+                <div class="recording-controls" id="recordingControls">
+                    <button class="btn btn-primary" id="recordBtn">
+                        <span>🎥</span>
+                        <span>Start Recording</span>
+                    </button>
+                    <button class="btn btn-secondary" id="stopRecordBtn" disabled>
+                        <span class="record-indicator"></span>
+                        <span>Stop Recording</span>
+                    </button>
+                    <button class="btn btn-secondary" id="downloadBtn" disabled>
+                        <span>⬇️</span>
+                        <span>Download Video</span>
+                    </button>
+                </div>
+
+                <!-- Status -->
+                <div class="status" id="status"></div>
+            </div>
+
+            <!-- Right Panel - 3D Avatar Canvas -->
+            <div class="card">
+                <div class="section-title">
+                    <span>🎬</span>
+                    <span>Preview</span>
+                </div>
+                <canvas id="avatarCanvas"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js and TalkingHead -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js/+esm",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+            "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7/modules/talkinghead.mjs"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { TalkingHead } from "talkinghead";
+
+        let head = null;
+        let audioBuffer = null;
+        let audioContext = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+
+        const canvas = document.getElementById('avatarCanvas');
+        const uploadArea = document.getElementById('uploadArea');
+        const audioFile = document.getElementById('audioFile');
+        const audioInfo = document.getElementById('audioInfo');
+        const audioDetails = document.getElementById('audioDetails');
+        const loadBtn = document.getElementById('loadBtn');
+        const playBtn = document.getElementById('playBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const recordBtn = document.getElementById('recordBtn');
+        const stopRecordBtn = document.getElementById('stopRecordBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const recordingControls = document.getElementById('recordingControls');
+        const status = document.getElementById('status');
+
+        // Initialize TalkingHead
+        async function initTalkingHead() {
+            try {
+                showStatus('Initializing 3D engine...', 'info');
+                
+                console.log('Canvas dimensions:', canvas.width, canvas.height);
+                
+                head = new TalkingHead(canvas, {
+                    cameraView: 'head',
+                    cameraDistance: 0,
+                    lightAmbientIntensity: 3,
+                    lightDirectIntensity: 20,
+                    modelPixelRatio: window.devicePixelRatio
+                });
+
+                console.log('TalkingHead initialized');
+                
+                // Start the animation loop
+                head.start();
+                
+                showStatus('Ready! Upload an audio file to begin.', 'success');
+            } catch (error) {
+                showStatus('Error initializing: ' + error.message, 'error');
+                console.error('Init error:', error);
+            }
+        }
+
+        // Upload handlers
+        uploadArea.addEventListener('click', () => audioFile.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleAudioFile(files[0]);
+            }
+        });
+
+        audioFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleAudioFile(e.target.files[0]);
+            }
+        });
+
+        async function handleAudioFile(file) {
+            try {
+                showStatus('Loading audio file...', 'info');
+
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+
+                const arrayBuffer = await file.arrayBuffer();
+                audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+                const duration = audioBuffer.duration.toFixed(2);
+                const sampleRate = audioBuffer.sampleRate;
+                const channels = audioBuffer.numberOfChannels;
+
+                audioDetails.innerHTML = `
+                    <div><strong>File:</strong> ${file.name}</div>
+                    <div><strong>Duration:</strong> ${duration}s</div>
+                    <div><strong>Sample Rate:</strong> ${sampleRate} Hz</div>
+                    <div><strong>Channels:</strong> ${channels}</div>
+                `;
+
+                audioInfo.classList.add('show');
+                loadBtn.disabled = false;
+
+                showStatus('Audio loaded successfully!', 'success');
+            } catch (error) {
+                showStatus('Error loading audio: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        // Load Avatar
+        loadBtn.addEventListener('click', async () => {
+            try {
+                showStatus('Loading 3D avatar... This may take a moment.', 'info');
+                loadBtn.disabled = true;
+
+                const avatarModel = document.getElementById('avatarSelect').value;
+                const mood = document.getElementById('moodSelect').value;
+                const view = document.getElementById('viewSelect').value;
+
+                // Using local avatar or CDN
+                const avatarUrls = {
+                    brunette: './avatars/avatar.glb',
+                    male: 'https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7/avatars/brunette.glb',
+                    female: 'https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7/avatars/brunette.glb'
+                };
+
+                const avatarUrl = avatarUrls[avatarModel];
+                console.log('Loading avatar from:', avatarUrl);
+
+                await head.showAvatar({
+                    url: avatarUrl,
+                    body: 'F',
+                    avatarMood: mood,
+                    lipsyncLang: 'en'
+                });
+
+                console.log('Avatar loaded successfully');
+
+                head.setView(view);
+
+                playBtn.disabled = false;
+                recordingControls.classList.add('show');
+
+                showStatus('Avatar loaded! Ready to play.', 'success');
+            } catch (error) {
+                showStatus('Error loading avatar: ' + error.message, 'error');
+                console.error('Full error:', error);
+                loadBtn.disabled = false;
+            }
+        });
+
+        // Play Animation
+        playBtn.addEventListener('click', async () => {
+            try {
+                if (!audioBuffer) {
+                    showStatus('Please upload an audio file first!', 'error');
+                    return;
+                }
+
+                showStatus('Playing animation...', 'info');
+                playBtn.disabled = true;
+                stopBtn.disabled = false;
+
+                // Simple lip-sync simulation
+                // In production, you'd extract word timestamps from your TTS
+                const duration = audioBuffer.duration * 1000;
+                const words = generateDummyWords(duration);
+
+                await head.speakAudio({
+                    audio: audioBuffer,
+                    words: words.words,
+                    wtimes: words.times,
+                    wdurations: words.durations
+                });
+
+                showStatus('Animation playing!', 'success');
+            } catch (error) {
+                showStatus('Error playing: ' + error.message, 'error');
+                console.error(error);
+                playBtn.disabled = false;
+            }
+        });
+
+        // Stop
+        stopBtn.addEventListener('click', () => {
+            head.stop();
+            playBtn.disabled = false;
+            stopBtn.disabled = true;
+            showStatus('Stopped.', 'info');
+        });
+
+        // Recording
+        recordBtn.addEventListener('click', () => {
+            startRecording();
+        });
+
+        stopRecordBtn.addEventListener('click', () => {
+            stopRecording();
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            downloadVideo();
+        });
+
+        function startRecording() {
+            try {
+                const stream = canvas.captureStream(30);
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'video/webm;codecs=vp9'
+                });
+
+                recordedChunks = [];
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) {
+                        recordedChunks.push(e.data);
+                    }
+                };
+
+                mediaRecorder.onstop = () => {
+                    downloadBtn.disabled = false;
+                    showStatus('Recording saved! Click download.', 'success');
+                };
+
+                mediaRecorder.start();
+                recordBtn.disabled = true;
+                stopRecordBtn.disabled = false;
+                showStatus('Recording started...', 'info');
+            } catch (error) {
+                showStatus('Recording error: ' + error.message, 'error');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                recordBtn.disabled = false;
+                stopRecordBtn.disabled = true;
+            }
+        }
+
+        function downloadVideo() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'animated-podcast-' + Date.now() + '.webm';
+            a.click();
+            URL.revokeObjectURL(url);
+            showStatus('Video downloaded!', 'success');
+        }
+
+        function generateDummyWords(duration) {
+            // Generate dummy word timestamps for demo
+            // In production, use actual word timestamps from TTS
+            const words = [];
+            const times = [];
+            const durations = [];
+            
+            const wordCount = Math.floor(duration / 500);
+            for (let i = 0; i < wordCount; i++) {
+                words.push('word');
+                times.push(i * 500);
+                durations.push(400);
+            }
+
+            return { words, times, durations };
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = 'status show ' + type;
+        }
+
+        // Initialize on load
+        initTalkingHead();
+    </script>
+</body>
+</html>

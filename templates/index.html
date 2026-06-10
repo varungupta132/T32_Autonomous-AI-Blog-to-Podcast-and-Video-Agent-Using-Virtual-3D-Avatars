@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Podcast Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+        :root {
+            /* Dark Theme (Default) */
+            --primary: #FF4E00;
+            --primary-hover: #E03E00;
+            --accent: #FF8C00;
+            --bg-base: #0a0a0a;
+            --surface: rgba(30, 30, 30, 0.6);
+            --surface-hover: rgba(45, 45, 45, 0.8);
+            --text-main: #f8f8f8;
+            --text-muted: #9e9e9e;
+            --border: rgba(255, 255, 255, 0.08);
+            --input-bg: rgba(0, 0, 0, 0.3);
+            --glass-blur: blur(20px);
+        }
+
+        [data-theme="light"] {
+            --bg-base: #f0f2f5;
+            --surface: rgba(255, 255, 255, 0.8);
+            --surface-hover: rgba(255, 255, 255, 0.9);
+            --text-main: #1a1a1b;
+            --text-muted: #5f6368;
+            --border: rgba(0, 0, 0, 0.1);
+            --input-bg: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background Orbs */
+        .bg-orbs {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: #000;
+        }
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        .orb-1 {
+            width: 400px; height: 400px;
+            background: #FF4E00;
+            top: -100px; left: -100px;
+            animation-duration: 25s;
+        }
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: #FF8C00;
+            bottom: -200px; right: -100px;
+            animation-delay: -5s;
+        }
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: #CC2200;
+            top: 40%; left: 60%;
+            animation-duration: 30s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(50px, 50px) scale(1.1); }
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 2.5rem;
+            background: var(--surface);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        header { text-align: center; margin-bottom: 3rem; }
+
+        .title-gradient {
+            background: linear-gradient(to right, #FF8C00, #FF4E00, #FF2000);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+        }
+        @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+        .card {
+            background: rgba(15, 15, 15, 0.4);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 78, 0, 0.3);
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+        label {
+            display: block; margin-bottom: 0.6rem;
+            color: #d1d1d1; font-weight: 500; font-size: 0.95rem;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        option { background-color: #1a1a1a; color: white; }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(255, 78, 0, 0.15);
+        }
+
+        button {
+            width: 100%;
+            padding: 1.2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        button::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); animation: shine 3s infinite reverse;
+        }
+        @keyframes shine { 100% { left: 200%; } }
+
+        button:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 78, 0, 0.4);
+        }
+        button:disabled {
+            background: #333; cursor: not-allowed; color: #888;
+        }
+        button:disabled::after { display: none; }
+
+        /* Fancy Loader Sequence */
+        .stage-loader {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 1rem; border-radius: 12px; background: rgba(0,0,0,0.2); margin-top: 1rem;
+        }
+        .stage-loader.active { display: flex; animation: fadeIn 0.4s ease; }
+        .stage-text { margin-top: 10px; font-weight: 500; color: var(--accent); }
+        .bouncing-bars { display: flex; gap: 4px; }
+        .bar {
+            width: 4px; height: 16px; background: var(--primary); border-radius: 4px;
+            animation: bounce 1s infinite alternate;
+        }
+        .bar:nth-child(2) { animation-delay: 0.2s; }
+        .bar:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0% { height: 16px; } 100% { height: 32px; background: #FF8C00; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Speaker Analysis Roster */
+        .speakers-roster {
+            display: flex; flex-direction: column; gap: 10px; margin-top: 1.5rem; display: none;
+        }
+        .speakers-roster.active { display: flex; animation: fadeIn 0.5s ease; }
+        .speaker-card {
+            display: flex; align-items: center; gap: 15px; padding: 12px;
+            background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border);
+            border-radius: 12px; transition: transform 0.2s;
+        }
+        .speaker-card:hover { transform: scale(1.02); border-color: rgba(255, 255, 255, 0.2); }
+        .avatar {
+            width: 45px; height: 45px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 1.2rem; box-shadow: 0 0 10px rgba(255, 78, 0, 0.3);
+        }
+        .speaker-details h4 { margin-bottom: 2px; color: #fff; }
+        .speaker-details p { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* Audio Visualizer */
+        .result-area { margin-top: 2rem; display: none; text-align: center; }
+        .result-area.active { display: block; animation: fadeIn 0.6s ease; }
+        #visualizer {
+            width: 100%; height: 100px;
+            background: rgba(0,0,0,0.3); border-radius: 12px; margin-bottom: 1rem;
+            border: 1px solid var(--border); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        #audioPlayer { width: 100%; border-radius: 30px; outline: none; }
+        
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 1.5rem; padding: 0.8rem 1.5rem;
+            background: transparent; color: var(--accent);
+            border: 2px solid var(--accent); border-radius: 30px;
+            text-decoration: none; font-weight: 600; transition: all 0.3s;
+        }
+        .download-btn:hover { background: var(--accent); color: #000; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4); }
+
+        /* Script Stats Panel */
+        .script-stats {
+            display: flex; gap: 15px; margin-top: 1rem; margin-bottom: 1rem;
+            animation: fadeIn 0.5s ease;
+        }
+        .stat-box {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+        }
+        .stat-label {
+            display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.2rem; font-weight: 600; color: var(--accent); font-family: 'Outfit', sans-serif;
+        }
+
+        /* Project History Panel */
+        .history-item {
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border);
+            padding: 15px 20px; border-radius: 12px; margin-bottom: 10px;
+        }
+        .history-item:hover { border-color: rgba(255, 78, 0, 0.3); }
+        .history-title { font-weight: 600; color: #fff; }
+        .history-meta { font-size: 0.85rem; color: var(--text-muted); }
+        .history-actions { display: flex; gap: 10px; align-items: center; }
+        .history-btn { 
+            background: transparent; color: var(--accent); border: 1px solid var(--accent); 
+            padding: 6px 16px; border-radius: 20px; text-decoration: none; font-size: 0.85rem;
+            cursor: pointer; transition: all 0.3s; width: auto; font-family: 'Inter', sans-serif;
+            display: inline-block;
+        }
+        .history-btn::after { display: none; }
+        .history-btn:hover { background: var(--accent); color: #000; box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3); transform: none; }
+        .history-scroll {
+            max-height: 250px; overflow-y: auto; padding-right: 5px;
+        }
+        .history-scroll::-webkit-scrollbar { width: 6px; }
+        .history-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .history-scroll::-webkit-scrollbar-thumb { background: rgba(255,140,0,0.5); border-radius: 10px; }
+
+        /* Theme Toggle */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 2.5rem;
+            right: 2.5rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        .theme-toggle-btn:hover { background: var(--primary); color: white; transform: rotate(15deg); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <div class="container">
+        <button class="theme-toggle-btn" id="themeToggle" title="Switch Theme">
+            <svg id="themeIcon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+        <header>
+            <h1 class="title-gradient">🎙️ AI Podcast Studio</h1>
+            <p style="color: var(--text-muted); font-size: 1.25rem;">Stunning, multilingual, and emotionally expressive.</p>
+        </header>
+
+        <div class="grid">
+            <!-- Left Column: Input -->
+            <div class="card">
+                <h2 style="color: white; margin-bottom: 20px;">1. Blueprint</h2>
+                <div class="form-group">
+                    <label>Podcast Topic or Title</label>
+                    <input type="text" id="title" placeholder="E.g., The Future of Artificial Intelligence">
+                </div>
+                <div class="form-group">
+                    <label>Blog Content / Source Material</label>
+                    <textarea id="content" rows="6" placeholder="Paste the full text here to be transformed into a dynamic conversation..."></textarea>
+                </div>
+                <!-- AI Engine Setup -->
+                <div class="form-group" style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="font-size: 1rem; color: #fff; margin-bottom: 10px;">🤖 AI Generator Engine</h3>
+                    <label style="color: var(--text-muted);">OpenRouter API Key (Required for writing script)</label>
+                    <input type="password" id="openRouterKey" placeholder="sk-or-v1-..." style="margin-bottom: 5px;">
+                    <small style="color: #FF8C00; font-size: 0.8rem; display: block;">Important: Required to generate any podcast scripts.</small>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>Language & Vibe</label>
+                    <select id="language">
+                        <option value="global">English (Global)</option>
+                        <option value="indian" selected>Hinglish (India)</option>
+                        <option value="telugu">Telugu</option>
+                        <option value="french">French</option>
+                        <option value="spanish">Spanish</option>
+                    </select>
+                </div>
+                <!-- Background Music Selection -->
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Background Vibe</label>
+                    <select id="bgMusic">
+                        <option value="none">None</option>
+                        <option value="intro">Podcast intro</option>
+                        <option value="soft" selected>Soft music</option>
+                        <option value="news">News style</option>
+                    </select>
+                </div>
+                
+                <!-- Video Settings -->
+                <div class="form-group" style="margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                    <h3 style="font-size: 1rem; color: #fff; margin-bottom: 10px;">🎥 Video Studio Settings</h3>
+                    <label style="color: var(--text-muted);">D-ID API Key (for Video Generation)</label>
+                    <input type="password" id="didApiKey" placeholder="Basic YXBpX2tleV9oZXJl...">
+                    <small style="color: #FF8C00; font-size: 0.8rem; display: block; margin-top: 5px;">Required ONLY for generating deepfake avatars.</small>
+                    
+                    <label style="color: var(--text-muted); margin-top: 15px;">Video Rendering Mode</label>
+                    <select id="videoMode">
+                        <option value="did" selected>Professional (D-ID Lip-Sync)</option>
+                        <option value="fast">Fast Draft (Static Avatars)</option>
+                    </select>
+                    <small style="color: var(--text-muted); font-size: 0.8rem; display: block; margin-top: 5px;">'Fast Draft' is 10x faster and doesn't require cloud credits.</small>
+                </div>
+                
+                <button id="generateScriptBtn">
+                    <span id="btnScriptText">Ignite AI Generation</span>
+                </button>
+                
+                <div class="stage-loader" id="scriptLoader">
+                    <div class="bouncing-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                    <div class="stage-text" id="scriptStageText">Crafting brilliant dialogues...</div>
+                </div>
+            </div>
+
+            <!-- Right Column: Script & Audio -->
+            <div class="card">
+                <h2 style="color: white; margin-bottom: 20px;">2. Studio</h2>
+                <div class="form-group">
+                    <label>Generated Script</label>
+                    <textarea id="scriptOutput" rows="6" placeholder="Your generated script will surface here. Feel free to tweak it!"></textarea>
+                </div>
+
+                <!-- Script Stats Panel -->
+                <div id="scriptStats" class="script-stats hidden">
+                    <div class="stat-box">
+                        <span class="stat-label">Words</span>
+                        <span class="stat-value" id="statWords">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Speakers</span>
+                        <span class="stat-value" id="statSpeakers">0</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Est. Duration</span>
+                        <span class="stat-value" id="statDuration">0m 0s</span>
+                    </div>
+                </div>
+                
+                <!-- Dynamic Speaker Roster -->
+                <div class="speakers-roster" id="speakerRoster">
+                    <h3 style="font-size: 1rem; color: #fff; margin-bottom: 5px;">🎤 Casting Roster</h3>
+                    <div id="rosterContainer"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-top: 1.5rem;" id="renderControls" class="hidden">
+                    <button id="generateAudioBtn" style="background: linear-gradient(45deg, #FF8C00, #FF4E00); flex: 1;">
+                        <span id="btnAudioText">Synthesize Audio</span>
+                    </button>
+                    <button id="generateVideoBtn" style="background: linear-gradient(45deg, #9C27B0, #E91E63); flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2;">
+                        <span id="btnVideoText" style="font-weight: 600;">Render Video</span>
+                        <span style="font-size: 0.70rem; font-weight: normal; opacity: 0.8;">Requires D-ID Key & Images</span>
+                    </button>
+                </div>
+
+                <div class="stage-loader" id="audioLoader">
+                    <div class="bouncing-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+                    <div class="stage-text" id="audioStageText">Warming up vocal chords...</div>
+                </div>
+                
+                <div class="result-area" id="audioResult">
+                    <h3 style="margin-bottom: 1rem; color: var(--accent);">Your Masterpiece is Ready 🎧</h3>
+                    <canvas id="visualizer"></canvas>
+                    <audio id="audioPlayer" controls crossorigin="anonymous"></audio>
+                    <a id="downloadLink" href="#" class="download-btn">Download MP3 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg></a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Row: Project History -->
+        <div class="card" style="margin-top: 2.5rem;">
+            <h2 style="color: white; margin-bottom: 20px;">3. Project History</h2>
+            <div id="projectHistoryContainer" class="history-scroll">
+                <p style="color: var(--text-muted);">Loading past podcasts...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const btnScript = document.getElementById('generateScriptBtn');
+        const btnAudio = document.getElementById('generateAudioBtn');
+        const btnVideo = document.getElementById('generateVideoBtn');
+        const renderControls = document.getElementById('renderControls');
+        const scriptLoader = document.getElementById('scriptLoader');
+        const audioLoader = document.getElementById('audioLoader');
+        const scriptStageText = document.getElementById('scriptStageText');
+        const audioStageText = document.getElementById('audioStageText');
+        
+        const scriptOutput = document.getElementById('scriptOutput');
+        const speakerRoster = document.getElementById('speakerRoster');
+        const rosterContainer = document.getElementById('rosterContainer');
+        
+        const audioResult = document.getElementById('audioResult');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const downloadLink = document.getElementById('downloadLink');
+        const btnScriptText = document.getElementById('btnScriptText');
+        const btnAudioText = document.getElementById('btnAudioText');
+        const btnVideoText = document.getElementById('btnVideoText');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Theme Switcher
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            
+            // Update Icon
+            if (newTheme === 'light') {
+                themeIcon.innerHTML = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>`;
+            } else {
+                themeIcon.innerHTML = `<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>`;
+            }
+        });
+
+        // Audio Visualizer Setup
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+        let audioContext, analyser, source, dataArray;
+        
+        function setupVisualizer() {
+            // Setup sizing
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Only set up once
+            if(audioContext) return;
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                source = audioContext.createMediaElementSource(audioPlayer);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                drawVisualizer();
+            } catch (e) {
+                console.warn("Audio Context unable to mount (browser security restriction until interaction)");
+            }
+        }
+
+        // Must resume context on play if it was suspended
+        audioPlayer.addEventListener('play', () => {
+            setupVisualizer();
+            if(audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        });
+
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            if(!analyser) return;
+
+            analyser.getByteFrequencyData(dataArray);
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            let barHeight;
+            let x = 0;
+            
+            for(let i = 0; i < dataArray.length; i++) {
+                barHeight = dataArray[i] / 2;
+                
+                // Ember-like gradient depending on intensity
+                let r = barHeight + (25 * (i/dataArray.length));
+                let g = 100 * (i/dataArray.length);
+                let b = 50;
+                
+                ctx.fillStyle = `rgb(${r+100},${g},${b})`;
+                ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+                x += barWidth + 1;
+            }
+        }
+
+        // Timed loading text flipper
+        function animateLoading(elem, messages) {
+            let i = 0;
+            elem.innerText = messages[0];
+            const interval = setInterval(() => {
+                i = (i + 1) % messages.length;
+                elem.innerText = messages[i];
+            }, 2500);
+            return interval;
+        }
+
+        btnScript.addEventListener('click', async () => {
+            const content = document.getElementById('content').value;
+            const title = document.getElementById('title').value;
+            const type = 'co-host';
+            const language = document.getElementById('language').value;
+            const openrouterApiKey = document.getElementById('openRouterKey').value;
+
+            if(!openrouterApiKey) {
+                alert("Please provide an OpenRouter API Key in the AI Generator Engine section before proceeding!");
+                return;
+            }
+
+            if (!content) {
+                alert("Please provide some source content first!"); return;
+            }
+
+            // UI State change
+            btnScript.disabled = true;
+            btnScriptText.innerText = "Generating...";
+            scriptLoader.classList.add('active');
+            speakerRoster.classList.remove('active');
+            document.getElementById('scriptStats').classList.add('hidden');
+            renderControls.classList.add('hidden');
+            audioResult.classList.remove('active');
+            scriptOutput.value = "";
+
+            const loaderInt = animateLoading(scriptStageText, [
+                "Drafting brilliant dialogues...",
+                "Injecting human emotion...",
+                "Structuring the narrative...",
+                "Final polish before rendering..."
+            ]);
+
+            try {
+                const res = await fetch('/api/ai-generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ content, title, podcast_type: type, audience: language, openrouter_api_key: openrouterApiKey })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    scriptOutput.value = data.script;
+                    
+                    // Trigger Speaker Analysis automatically
+                    await analyzeScript(data.script, language);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Connection error');
+            } finally {
+                clearInterval(loaderInt);
+                btnScript.disabled = false;
+                btnScriptText.innerText = "Regenerate AI Script";
+                scriptLoader.classList.remove('active');
+            }
+        });
+
+        async function analyzeScript(script, language) {
+            try {
+                scriptStageText.innerText = "Analyzing cast & voices...";
+                const res = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ script, language })
+                });
+                const data = await res.json();
+                
+                if(data.success && data.speakers > 0) {
+                    rosterContainer.innerHTML = '';
+                    
+                    for (const [name, info] of Object.entries(data.speaker_info)) {
+                        const card = document.createElement('div');
+                        card.className = 'speaker-card';
+                        card.style.flexWrap = 'wrap';
+                        
+                        // Pick first letter of name for Avatar
+                        const initial = name.charAt(0).toUpperCase();
+
+                        // Create voice options
+                        let voiceOptions = '';
+                        if (data.available_voices) {
+                            data.available_voices.forEach(v => {
+                                const selected = (v.voice === info.voice_key) ? 'selected' : '';
+                                voiceOptions += `<option value="${v.voice}" ${selected}>${v.name}</option>`;
+                            });
+                        }
+                        
+                        card.innerHTML = `
+                            <div class="avatar">${initial}</div>
+                            <div class="speaker-details" style="flex: 1; min-width: 150px;">
+                                <h4>${name}</h4>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Voice:</span>
+                                    <select class="voice-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; flex: 1; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); max-width: 100%;">
+                                        ${voiceOptions}
+                                    </select>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Avatar URL:</span>
+                                    <input type="text" class="avatar-url" data-speaker="${name}" value="https://create-images-results.d-id.com/api_docs/assets/noelle.jpeg" placeholder="Image URL required for Video" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; flex: 1; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border); max-width: 100%;">
+                                </div>
+                            </div>
+                            <div style="margin-left: auto;">
+                                <div style="display: flex; flex-direction: column; gap: 4px;">
+                                    <span style="font-size: 0.85rem; color: var(--text-muted);">Emotion:</span>
+                                    <select class="emotion-select" data-speaker="${name}" style="padding: 0.4rem; border-radius: 8px; font-size: 0.85rem; width: 110px; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--border);">
+                                        <option value="auto">Auto (AI)</option>
+                                        <option value="neutral">Neutral</option>
+                                        <option value="excited">Excited</option>
+                                        <option value="calm">Calm</option>
+                                        <option value="serious">Serious</option>
+                                    </select>
+                                </div>
+                            </div>
+                        `;
+                        rosterContainer.appendChild(card);
+                    }
+                    
+                    // Update Script Stats
+                    const words = script.trim().split(/\s+/).filter(w => w.length > 0).length;
+                    const totalSeconds = Math.round((words / 150) * 60);
+                    // Show UI Elements
+                    document.getElementById('scriptStats').classList.remove('hidden');
+                    speakerRoster.classList.add('active');
+                    renderControls.classList.remove('hidden');
+                    
+                    // Show stats
+                    document.getElementById('statWords').innerText = script.split(/\s+/).length;
+                    document.getElementById('statSpeakers').innerText = data.speakers;
+                    document.getElementById('statDuration').innerText = Math.floor(script.split(/\s+/).length / 150) + "m";
+                    
+                    btnAudio.classList.remove('hidden'); // Reveal audio render button
+                }
+            } catch(e) {
+                console.error("Failed to analyze script", e);
+                renderControls.classList.remove('hidden');
+            }
+        }
+
+        btnAudio.addEventListener('click', async () => {
+            const script = scriptOutput.value;
+            if(!script) return;
+            
+            const language = document.getElementById('language').value;
+            const bgMusic = document.getElementById('bgMusic').value;
+            const title = document.getElementById('title').value;
+            
+            const emotionSelects = document.querySelectorAll('.emotion-select');
+            const emotionOverrides = {};
+            emotionSelects.forEach(select => {
+                if(select.value !== 'auto') {
+                    emotionOverrides[select.dataset.speaker] = select.value;
+                }
+            });
+
+            const voiceSelects = document.querySelectorAll('.voice-select');
+            const voiceOverrides = {};
+            voiceSelects.forEach(select => {
+                if(select.value) {
+                    voiceOverrides[select.dataset.speaker] = select.value;
+                }
+            });
+
+            btnAudio.disabled = true;
+            btnAudioText.innerText = "Rendering...";
+            audioLoader.classList.add('active');
+            audioResult.classList.remove('active');
+
+            const loaderInt = animateLoading(audioStageText, [
+                "Allocating voice vectors...",
+                "Synthesizing speech segments...",
+                "Applying emotional modulation...",
+                "Stitching and mastering audio...",
+                "Finalizing MP3 export..."
+            ]);
+
+            try {
+                const res = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ script, name: 'mastered_podcast', title, language, bg_music: bgMusic, emotion_overrides: emotionOverrides, voice_overrides: voiceOverrides })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    // Force cache bypass by appending timestamp so re-runs play updated audio
+                    audioPlayer.src = '/api/stream/' + data.filename + '?t=' + Date.now();
+                    downloadLink.href = '/api/download/' + data.filename;
+                    downloadLink.download = "My_AI_Podcast.mp3";
+                    
+                    audioResult.classList.add('active');
+                    loadHistory(); // Refresh history
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch(e) {
+                alert('Generation failed');
+            } finally {
+                clearInterval(loaderInt);
+                btnAudio.disabled = false;
+                btnAudioText.innerText = "Synthesize Audio";
+                audioLoader.classList.remove('active');
+            }
+        });
+
+        btnVideo.addEventListener('click', async () => {
+            const script = scriptOutput.value;
+            if(!script) return;
+            
+            const didApiKey = document.getElementById('didApiKey').value.trim();
+            if(!didApiKey) {
+                alert("Please provide your D-ID API key in the Video Settings section.");
+                return;
+            }
+            
+            const language = document.getElementById('language').value;
+            const bgMusic = document.getElementById('bgMusic').value;
+            const title = document.getElementById('title').value;
+            const videoMode = document.getElementById('videoMode').value;
+            const fastMode = (videoMode === 'fast');
+            
+            const emotionSelects = document.querySelectorAll('.emotion-select');
+            const emotionOverrides = {};
+            emotionSelects.forEach(select => {
+                if(select.value !== 'auto') {
+                    emotionOverrides[select.dataset.speaker] = select.value;
+                }
+            });
+
+            const voiceSelects = document.querySelectorAll('.voice-select');
+            const voiceOverrides = {};
+            voiceSelects.forEach(select => {
+                if(select.value) {
+                    voiceOverrides[select.dataset.speaker] = select.value;
+                }
+            });
+            
+            const avatarInputs = document.querySelectorAll('.avatar-url');
+            const avatarMapping = {};
+            let missingImages = false;
+            avatarInputs.forEach(input => {
+                if(input.value) {
+                    avatarMapping[input.dataset.speaker] = input.value;
+                } else {
+                    missingImages = true;
+                }
+            });
+            
+            if(missingImages) {
+                if(!confirm("Some speakers do not have an Avatar Image URL assigned. Do you want to proceed anyway? (Those segments will fail video generation)")) {
+                    return;
+                }
+            }
+
+            btnVideo.disabled = true;
+            btnAudio.disabled = true;
+            btnVideoText.innerText = "Rendering Video...";
+            audioLoader.classList.add('active');
+            audioResult.classList.remove('active');
+
+            const loaderInt = animateLoading(audioStageText, [
+                "Generating All Audio Tracks...",
+                "Batching segments by speaker (Optimization)...",
+                "Contacting D-ID API for batched playback...",
+                "Waiting for cloud rendering (2-4 tasks total)...",
+                "Downloading high-speed MP4 batches...",
+                "Executing Slice & Stitch Assembly..."
+            ]);
+
+            try {
+                const res = await fetch('/api/generate-video', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        script, name: 'video_podcast', title, language, bg_music: bgMusic, 
+                        emotion_overrides: emotionOverrides, voice_overrides: voiceOverrides,
+                        did_api_key: didApiKey, avatar_mapping: avatarMapping,
+                        fast_mode: fastMode
+                    })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    // It returns an mp4
+                    audioPlayer.src = '/api/stream/' + data.filename + '?t=' + Date.now();
+                    downloadLink.href = '/api/download/' + data.filename;
+                    downloadLink.download = "My_AI_Podcast.mp4";
+                    downloadLink.innerHTML = 'Download MP4 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>';
+                    
+                    audioResult.querySelector('h3').innerText = "Your Video Masterpiece is Ready 🎬";
+                    audioResult.classList.add('active');
+                    loadHistory();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch(e) {
+                alert('Connection error or timeout');
+            } finally {
+                clearInterval(loaderInt);
+                btnVideo.disabled = false;
+                btnAudio.disabled = false;
+                btnVideoText.innerText = "Render Video";
+                audioLoader.classList.remove('active');
+            }
+        });
+        
+        // Setup initial canvas sizing
+        window.addEventListener('resize', () => {
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        });
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+
+        // Project History Logic
+        async function loadHistory() {
+            const container = document.getElementById('projectHistoryContainer');
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                if (data.success) {
+                    if (data.podcasts.length === 0) {
+                        container.innerHTML = '<p style="color: var(--text-muted);">No generated podcasts yet.</p>';
+                    } else {
+                        container.innerHTML = data.podcasts.map(p => `
+                            <div class="history-item" style="flex-direction: column; align-items: stretch;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <div class="history-title">${p.title || p.filename}</div>
+                                        <div class="history-meta">${p.size} &nbsp;&bull;&nbsp; ${p.created}</div>
+                                    </div>
+                                    <div class="history-actions">
+                                        <button class="history-btn" onclick="playHistory('${p.filename}')">Play</button>
+                                        <a class="history-btn" href="/api/download/${p.filename}" download="${p.filename}">Download</a>
+                                        <button class="history-btn" style="color: #ff4444; border-color: #ff4444;" onclick="deleteHistory('${p.filename}')">Delete</button>
+                                    </div>
+                                </div>
+                                ${p.script && p.script !== 'No script available.' ? `<details style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+                                    <summary style="cursor: pointer; color: var(--accent); font-size: 0.85rem; user-select: none;">Show Script</summary>
+                                    <div style="margin-top: 8px; padding: 10px; background: rgba(0,0,0,0.4); border-radius: 8px; max-height: 150px; overflow-y: auto; font-size: 0.85rem; color: #ccc; white-space: pre-wrap;">${p.script}</div>
+                                </details>` : ''}
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch(e) {
+                container.innerHTML = '<p style="color: #ff4e00;">Failed to load history.</p>';
+            }
+        }
+
+        function playHistory(filename) {
+            audioPlayer.src = '/api/stream/' + filename + '?t=' + Date.now();
+            audioPlayer.play();
+            audioResult.classList.add('active');
+            window.scrollTo({ top: audioResult.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        async function deleteHistory(filename) {
+            if (!confirm('Are you sure you want to delete ' + filename + '?')) return;
+            try {
+                const res = await fetch('/api/delete/' + encodeURIComponent(filename), { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) {
+                    loadHistory();
+                    // Stop playing if it's currently loaded
+                    if (audioPlayer.src.includes(encodeURIComponent(filename))) {
+                        audioPlayer.pause();
+                        audioPlayer.src = '';
+                        audioResult.classList.remove('active');
+                    }
+                } else {
+                    alert('Error deleting file: ' + data.error);
+                }
+            } catch(e) {
+                alert('Connection error');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadHistory);
+        // Initialize History on Load
+        loadHistory();
+
+        async function loadHistory() {
+            const container = document.getElementById('projectHistoryContainer');
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                
+                if(data.success && data.history.length > 0) {
+                    container.innerHTML = '';
+                    data.history.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'history-item';
+                        div.innerHTML = `
+                            <div>
+                                <div class="history-title">${item.title}</div>
+                                <div class="history-meta">${item.audience.toUpperCase()} | ${item.file_size} | ${item.timestamp}</div>
+                            </div>
+                            <div class="history-actions">
+                                <button class="history-btn" onclick="playPodcast('${item.filename}')">Play</button>
+                                <a href="/api/download/${item.filename}" class="history-btn">Download</a>
+                                <button class="history-btn" style="border-color: #ef4444; color: #ef4444;" onclick="deleteHistoryItem(${item.id})">Delete</button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No history found. Start generating!</p>';
+                }
+            } catch(e) {
+                container.innerHTML = '<p style="color: #ef4444;">Failed to load history.</p>';
+            }
+        }
+
+        window.playPodcast = (filename) => {
+            audioPlayer.src = '/api/stream/' + filename;
+            audioPlayer.play();
+            audioResult.classList.add('active');
+            audioResult.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.deleteHistoryItem = async (pid) => {
+            if(!confirm("Are you sure you want to delete this podcast?")) return;
+            try {
+                const res = await fetch(`/api/history/delete/${pid}`, { method: 'DELETE' });
+                const data = await res.json();
+                if(data.success) loadHistory();
+            } catch(e) { alert("Delete failed"); }
+        };
+    </script>
+</body>
+</html>

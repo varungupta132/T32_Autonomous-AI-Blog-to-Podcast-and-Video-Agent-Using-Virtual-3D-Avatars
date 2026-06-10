@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+env/
+.env
+.venv
+
+# Generated content (too large for git)
+generated_podcasts/*.mp3
+generated_videos/*.mp4
+temp_audio/*
+!temp_audio/.gitkeep
+temp_video/
+
+# Wav2Lip — local only (GPU required), not deployed to cloud
+Wav2Lip/
+
+# Large model files
+*.pth
+*.pkl
+*.h5
+*.onnx
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log

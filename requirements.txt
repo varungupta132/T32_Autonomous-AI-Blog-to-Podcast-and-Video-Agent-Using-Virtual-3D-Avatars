@@ -1,0 +1,14 @@
+# Core Dependencies
+flask==3.0.0
+edge-tts==6.1.9
+librosa==0.10.1
+numpy==1.24.3
+soundfile==0.12.1
+
+# FAL AI Integration
+fal-client==0.4.1
+python-dotenv==1.0.0
+
+# Optional (for advanced features)
+# whisper==1.1.10
+# pyannote.audio==3.1.1

@@ -1,0 +1,5 @@
+ollama
+flask
+gtts
+pydub
+pyttsx3

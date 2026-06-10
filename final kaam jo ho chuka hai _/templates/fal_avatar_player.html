@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 FAL AI Avatar Video Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 30px;
+        }
+
+        .upload-area:hover {
+            background: #f0f5ff;
+            border-color: #764ba2;
+        }
+
+        #audioFile {
+            display: none;
+        }
+
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .avatar-card {
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .avatar-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .avatar-card.selected {
+            border-color: #667eea;
+            background: #f0f5ff;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .avatar-icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .avatar-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .avatar-gender {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+
+        .status.show {
+            display: block;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .video-player {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .video-player.show {
+            display: block;
+        }
+
+        video {
+            width: 100%;
+            max-width: 600px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: block;
+            margin: 0 auto;
+        }
+
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-container.show {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f5f5f5;
+            margin: 0 5px;
+            position: relative;
+        }
+
+        .step.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .step.completed {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .step-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 FAL AI Avatar Video Generator</h1>
+            <p>Generate realistic avatar videos from your audio</p>
+        </div>
+
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div>Upload Audio</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div>Choose Avatar</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div>Generate Video</div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="card" id="uploadSection">
+            <h2>📤 Step 1: Upload Your Audio</h2>
+            <div class="upload-area" id="uploadArea">
+                <div style="font-size: 4em; margin-bottom: 15px;">🎵</div>
+                <h3 style="margin-bottom: 10px;">Drop your audio file here</h3>
+                <p style="color: #666; margin-bottom: 15px;">or click to browse</p>
+                <p style="color: #999; font-size: 0.9em;">Supports: MP3, WAV, OGG</p>
+            </div>
+            <input type="file" id="audioFile" accept="audio/*">
+            <div class="status" id="uploadStatus"></div>
+        </div>
+
+        <!-- Avatar Selection -->
+        <div class="card" id="avatarSection" style="display: none;">
+            <h2>👤 Step 2: Choose Your Avatar</h2>
+            <div class="avatar-grid" id="avatarGrid">
+                {% for avatar in avatars %}
+                <div class="avatar-card" data-avatar-id="{{ avatar.id }}" onclick="selectAvatar('{{ avatar.id }}')">
+                    <div class="avatar-icon">
+                        {% if avatar.gender == 'male' %}👨{% else %}👩{% endif %}
+                    </div>
+                    <div class="avatar-name">{{ avatar.name }}</div>
+                    <div class="avatar-gender">{{ avatar.gender|capitalize }}</div>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" id="generateBtn" onclick="generateVideo()" disabled>
+                    <span>🎬</span>
+                    <span>Generate Video</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Generation Progress -->
+        <div class="card" id="progressSection" style="display: none;">
+            <h2>⏳ Step 3: Generating Your Video...</h2>
+            <div class="progress-container show">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill">0%</div>
+                </div>
+            </div>
+            <div class="status show info" id="progressStatus">
+                Uploading audio to FAL AI...
+            </div>
+        </div>
+
+        <!-- Video Player -->
+        <div class="card" id="videoSection" style="display: none;">
+            <h2>✅ Your Avatar Video is Ready!</h2>
+            <div class="video-player show">
+                <video id="videoPlayer" controls></video>
+            </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="downloadVideo()">
+                    <span>⬇️</span>
+                    <span>Download Video</span>
+                </button>
+                <button class="btn btn-primary" onclick="resetForm()">
+                    <span>🔄</span>
+                    <span>Create Another</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFilename = null;
+        let selectedAvatarId = null;
+        let generatedVideoUrl = null;
+
+        const uploadArea = document.getElementById('uploadArea');
+        const audioFile = document.getElementById('audioFile');
+        const uploadStatus = document.getElementById('uploadStatus');
+        const avatarSection = document.getElementById('avatarSection');
+        const progressSection = document.getElementById('progressSection');
+        const videoSection = document.getElementById('videoSection');
+        const generateBtn = document.getElementById('generateBtn');
+        const progressFill = document.getElementById('progressFill');
+        const progressStatus = document.getElementById('progressStatus');
+        const videoPlayer = document.getElementById('videoPlayer');
+
+        // Upload handlers
+        uploadArea.addEventListener('click', () => audioFile.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '#f0f5ff';
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.background = '';
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.background = '';
+            if (e.dataTransfer.files.length > 0) {
+                handleUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        audioFile.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleUpload(e.target.files[0]);
+            }
+        });
+
+        async function handleUpload(file) {
+            try {
+                showStatus(uploadStatus, 'Uploading audio...', 'info');
+
+                const formData = new FormData();
+                formData.append('audio', file);
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+
+                uploadedFilename = data.filename;
+                showStatus(uploadStatus, '✓ Audio uploaded successfully!', 'success');
+                
+                // Move to step 2
+                document.getElementById('step1').classList.add('completed');
+                document.getElementById('step1').classList.remove('active');
+                document.getElementById('step2').classList.add('active');
+                avatarSection.style.display = 'block';
+                avatarSection.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                showStatus(uploadStatus, 'Error: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        function selectAvatar(avatarId) {
+            selectedAvatarId = avatarId;
+            
+            // Update UI
+            document.querySelectorAll('.avatar-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            document.querySelector(`[data-avatar-id="${avatarId}"]`).classList.add('selected');
+            
+            generateBtn.disabled = false;
+        }
+
+        async function generateVideo() {
+            try {
+                if (!uploadedFilename || !selectedAvatarId) {
+                    alert('Please upload audio and select an avatar first!');
+                    return;
+                }
+
+                // Move to step 3
+                document.getElementById('step2').classList.add('completed');
+                document.getElementById('step2').classList.remove('active');
+                document.getElementById('step3').classList.add('active');
+                progressSection.style.display = 'block';
+                progressSection.scrollIntoView({ behavior: 'smooth' });
+
+                // Simulate progress
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 5;
+                    if (progress <= 90) {
+                        progressFill.style.width = progress + '%';
+                        progressFill.textContent = progress + '%';
+                    }
+                }, 1000);
+
+                progressStatus.textContent = 'Uploading audio to FAL AI...';
+
+                const response = await fetch('/api/generate-video', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        audio_filename: uploadedFilename,
+                        avatar_id: selectedAvatarId
+                    })
+                });
+
+                const data = await response.json();
+
+                clearInterval(progressInterval);
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Video generation failed');
+                }
+
+                progressFill.style.width = '100%';
+                progressFill.textContent = '100%';
+                progressStatus.textContent = '✓ Video generated successfully!';
+                progressStatus.className = 'status show success';
+
+                generatedVideoUrl = data.video_url;
+
+                // Show video
+                setTimeout(() => {
+                    document.getElementById('step3').classList.add('completed');
+                    videoPlayer.src = generatedVideoUrl;
+                    videoSection.style.display = 'block';
+                    videoSection.scrollIntoView({ behavior: 'smooth' });
+                }, 1000);
+
+            } catch (error) {
+                progressStatus.textContent = '❌ Error: ' + error.message;
+                progressStatus.className = 'status show error';
+                console.error(error);
+            }
+        }
+
+        function downloadVideo() {
+            if (generatedVideoUrl) {
+                window.open(generatedVideoUrl, '_blank');
+            }
+        }
+
+        function resetForm() {
+            uploadedFilename = null;
+            selectedAvatarId = null;
+            generatedVideoUrl = null;
+            
+            document.getElementById('step1').classList.remove('completed');
+            document.getElementById('step1').classList.add('active');
+            document.getElementById('step2').classList.remove('completed', 'active');
+            document.getElementById('step3').classList.remove('completed', 'active');
+            
+            avatarSection.style.display = 'none';
+            progressSection.style.display = 'none';
+            videoSection.style.display = 'none';
+            
+            document.querySelectorAll('.avatar-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            generateBtn.disabled = true;
+            audioFile.value = '';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showStatus(element, message, type) {
+            element.textContent = message;
+            element.className = 'status show ' + type;
+        }
+    </script>
+</body>
+</html>

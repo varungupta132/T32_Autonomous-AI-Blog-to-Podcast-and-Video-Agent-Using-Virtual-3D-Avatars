@@ -1,0 +1,12 @@
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+pydantic==2.10.0
+pydantic-settings==2.6.0
+sqlalchemy==2.0.36
+python-multipart==0.0.12
+python-dotenv==1.0.1
+requests==2.32.3
+pydub==0.25.1
+gTTS==2.5.4
+slowapi==0.1.9
+elevenlabs==1.10.0

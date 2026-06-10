@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Avatar Loading</title>
+    <style>
+        body { margin: 0; background: #000; }
+        #canvas { width: 100vw; height: 100vh; }
+        #status { position: absolute; top: 20px; left: 20px; color: white; background: rgba(0,0,0,0.7); padding: 20px; border-radius: 10px; font-family: monospace; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="status">
+        <h3>Avatar Loading Test</h3>
+        <div id="log"></div>
+        <button onclick="testLoad()">Load Avatar</button>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js/+esm",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+            "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7/modules/talkinghead.mjs"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import { TalkingHead } from "talkinghead";
+
+        const canvas = document.getElementById('canvas');
+        const log = document.getElementById('log');
+        let head = null;
+
+        function addLog(msg) {
+            console.log(msg);
+            log.innerHTML += msg + '<br>';
+        }
+
+        async function init() {
+            try {
+                addLog('1. Initializing TalkingHead...');
+                head = new TalkingHead(canvas, {
+                    cameraView: 'head',
+                    lightAmbientIntensity: 3,
+                    lightDirectIntensity: 20
+                });
+                addLog('2. TalkingHead initialized ✓');
+                head.start();
+                addLog('3. Animation loop started ✓');
+            } catch (error) {
+                addLog('ERROR: ' + error.message);
+                console.error(error);
+            }
+        }
+
+        window.testLoad = async function() {
+            try {
+                addLog('4. Loading avatar from ./avatars/avatar.glb...');
+                
+                await head.showAvatar({
+                    url: './avatars/avatar.glb',
+                    body: 'F',
+                    avatarMood: 'neutral',
+                    lipsyncLang: 'en'
+                });
+                
+                addLog('5. Avatar loaded successfully! ✓');
+                head.setView('head');
+                addLog('6. Camera view set ✓');
+                
+            } catch (error) {
+                addLog('ERROR: ' + error.message);
+                console.error('Full error:', error);
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>

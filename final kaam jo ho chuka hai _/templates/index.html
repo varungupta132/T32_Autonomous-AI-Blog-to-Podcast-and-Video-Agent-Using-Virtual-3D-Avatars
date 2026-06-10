@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Podcast Studio Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050510;
+  --surface: rgba(12,10,35,0.82);
+  --surface2: rgba(20,16,50,0.7);
+  --border: rgba(139,92,246,0.18);
+  --border-bright: rgba(139,92,246,0.45);
+  --p1: #8B5CF6;
+  --p2: #6366F1;
+  --cyan: #06B6D4;
+  --green: #10B981;
+  --pink: #EC4899;
+  --orange: #F59E0B;
+  --red: #EF4444;
+  --text: #EDE9FE;
+  --muted: #6B6A8A;
+  --glass: blur(32px);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* ── BACKGROUND ── */
+.bg-mesh{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(120px);animation:drift 28s infinite ease-in-out alternate}
+.o1{width:700px;height:700px;background:radial-gradient(circle,#7C3AED55,transparent 70%);top:-200px;left:-200px;animation-duration:32s}
+.o2{width:600px;height:600px;background:radial-gradient(circle,#06B6D455,transparent 70%);bottom:-200px;right:-200px;animation-delay:-12s;animation-duration:26s}
+.o3{width:400px;height:400px;background:radial-gradient(circle,#EC489933,transparent 70%);top:40%;left:55%;animation-duration:38s;animation-delay:-6s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}100%{transform:translate(60px,50px) scale(1.12)}}
+
+/* ── LAYOUT ── */
+.wrap{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:2rem 1.5rem 5rem}
+
+/* ── HEADER ── */
+header{text-align:center;padding:3.5rem 0 2.5rem}
+.logo{display:inline-flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:24px;
+  background:linear-gradient(135deg,#7C3AED,#06B6D4);font-size:2.2rem;margin-bottom:1.4rem;
+  box-shadow:0 0 0 12px rgba(124,58,237,0.08),0 0 60px rgba(124,58,237,0.4);
+  animation:logoPulse 3s infinite}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 0 10px rgba(124,58,237,0.06),0 0 50px rgba(124,58,237,0.3)}
+  50%{box-shadow:0 0 0 20px rgba(124,58,237,0.03),0 0 80px rgba(124,58,237,0.55)}}
+h1{font-family:'Outfit',sans-serif;font-weight:900;font-size:clamp(2.2rem,5vw,3.4rem);
+  background:linear-gradient(90deg,#C4B5FD,#818CF8,#22D3EE,#34D399);
+  -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1.1;margin-bottom:.5rem}
+.tagline{color:var(--muted);font-size:.95rem;margin-bottom:1.4rem}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.badge{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.25);
+  color:#A78BFA;padding:4px 14px;border-radius:20px;font-size:.75rem;font-weight:600}
+
+/* ── NAV TABS ── */
+.nav-tabs{display:flex;gap:4px;background:rgba(139,92,246,0.06);border:1px solid var(--border);
+  border-radius:16px;padding:5px;margin-bottom:1.8rem}
+.nav-tab{flex:1;padding:.65rem 1rem;border-radius:12px;border:none;background:transparent;
+  color:var(--muted);font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:6px}
+.nav-tab:hover{color:var(--text);background:rgba(139,92,246,0.1)}
+.nav-tab.active{background:linear-gradient(135deg,rgba(139,92,246,0.3),rgba(99,102,241,0.2));
+  color:#C4B5FD;box-shadow:0 2px 12px rgba(139,92,246,0.2)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeUp .35s ease}
+
+/* ── CARDS ── */
+.card{background:var(--surface);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);
+  border:1px solid var(--border);border-radius:24px;padding:2rem;margin-bottom:1.5rem;
+  box-shadow:0 4px 40px rgba(0,0,0,0.5);transition:border-color .3s,box-shadow .3s}
+.card:hover{border-color:rgba(139,92,246,0.3);box-shadow:0 8px 50px rgba(139,92,246,0.08)}
+.card-header{display:flex;align-items:center;gap:14px;margin-bottom:1.8rem}
+.step-num{width:42px;height:42px;border-radius:14px;flex-shrink:0;
+  background:linear-gradient(135deg,#7C3AED,#4F46E5);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Outfit',sans-serif;font-weight:800;font-size:1rem;
+  box-shadow:0 0 20px rgba(124,58,237,0.4);transition:all .4s}
+.step-num.done{background:linear-gradient(135deg,#10B981,#06B6D4);box-shadow:0 0 20px rgba(16,185,129,0.4)}
+.card-title{font-family:'Outfit',sans-serif;font-weight:800;font-size:1.15rem;color:#EDE9FE}
+.card-sub{font-size:.82rem;color:var(--muted);margin-top:2px}
+
+/* ── FORM ELEMENTS ── */
+label{display:block;font-size:.83rem;font-weight:600;color:#C4B5FD;margin-bottom:.45rem}
+input[type="text"],input[type="number"],textarea,select{
+  width:100%;padding:.85rem 1.1rem;
+  background:rgba(5,5,20,0.6);border:1px solid rgba(139,92,246,0.2);
+  border-radius:12px;color:var(--text);font-family:'Inter',sans-serif;font-size:.92rem;
+  transition:border-color .3s,box-shadow .3s;margin-bottom:1.1rem}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--p1);box-shadow:0 0 0 3px rgba(139,92,246,0.18)}
+textarea{min-height:140px;resize:vertical;line-height:1.65}
+select option{background:#0a0820;color:#EDE9FE}
+
+/* ── PILL OPTIONS ── */
+.opts-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:1.1rem}
+.opt{padding:7px 16px;border-radius:30px;border:1px solid rgba(139,92,246,0.2);
+  color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .22s;
+  background:rgba(139,92,246,0.05)}
+.opt:hover{border-color:var(--p1);color:#A78BFA;background:rgba(139,92,246,0.12)}
+.opt.selected{border-color:var(--cyan);background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(6,182,212,0.12));
+  color:#67E8F9;box-shadow:0 0 14px rgba(6,182,212,0.15)}
+
+/* ── TONE PILLS ── */
+.tone-opt{padding:7px 16px;border-radius:30px;border:1px solid rgba(139,92,246,0.2);
+  color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .22s;
+  background:rgba(139,92,246,0.05)}
+.tone-opt:hover{border-color:var(--pink);color:#F9A8D4;background:rgba(236,72,153,0.1)}
+.tone-opt.selected{border-color:var(--pink);background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(139,92,246,0.1));
+  color:#F9A8D4;box-shadow:0 0 14px rgba(236,72,153,0.15)}
+
+/* ── LENGTH PILLS ── */
+.len-opt{padding:7px 16px;border-radius:30px;border:1px solid rgba(139,92,246,0.2);
+  color:var(--muted);font-size:.82rem;font-weight:600;cursor:pointer;transition:all .22s;
+  background:rgba(139,92,246,0.05)}
+.len-opt:hover{border-color:var(--orange);color:#FCD34D;background:rgba(245,158,11,0.1)}
+.len-opt.selected{border-color:var(--orange);background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(139,92,246,0.1));
+  color:#FCD34D;box-shadow:0 0 14px rgba(245,158,11,0.15)}
+
+/* ── LANG SELECT ── */
+.lang-select{padding:.65rem 2.2rem .65rem 1rem;background:rgba(5,5,20,0.6);
+  border:1px solid rgba(139,92,246,0.2);border-radius:30px;color:var(--text);
+  font-family:'Inter',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;
+  transition:all .25s;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B6A8A' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;margin-bottom:0}
+.lang-select:focus{outline:none;border-color:var(--p1);box-shadow:0 0 0 3px rgba(139,92,246,0.18)}
+
+/* ── BUTTONS ── */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:.5rem}
+.btn{padding:.85rem 1.6rem;border:none;border-radius:12px;font-family:'Inter',sans-serif;
+  font-weight:600;font-size:.92rem;cursor:pointer;display:inline-flex;align-items:center;
+  gap:8px;transition:all .28s;position:relative;overflow:hidden}
+.btn::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent);
+  transform:skewX(-20deg);animation:sheen 3.5s infinite}
+@keyframes sheen{100%{left:220%}}
+.btn-primary{background:linear-gradient(135deg,#7C3AED,#4F46E5);color:#fff;box-shadow:0 4px 20px rgba(124,58,237,0.35)}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,0.55)}
+.btn-green{background:linear-gradient(135deg,#10B981,#0891B2);color:#fff;box-shadow:0 4px 20px rgba(16,185,129,0.28)}
+.btn-green:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(16,185,129,0.45)}
+.btn-pink{background:linear-gradient(135deg,#EC4899,#8B5CF6);color:#fff;box-shadow:0 4px 20px rgba(236,72,153,0.28)}
+.btn-pink:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(236,72,153,0.45)}
+.btn-cyan{background:linear-gradient(135deg,#06B6D4,#6366F1);color:#fff;box-shadow:0 4px 20px rgba(6,182,212,0.28)}
+.btn-cyan:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 30px rgba(6,182,212,0.45)}
+.btn-ghost{background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);color:var(--muted)}
+.btn-ghost:hover:not(:disabled){background:rgba(139,92,246,0.16);color:var(--text)}
+.btn-danger{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#FCA5A5}
+.btn-danger:hover:not(:disabled){background:rgba(239,68,68,0.22);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+.btn:disabled::after{display:none}
+.btn-sm{padding:.5rem 1rem;font-size:.8rem;border-radius:8px}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed rgba(139,92,246,0.3);border-radius:16px;padding:2rem;
+  text-align:center;cursor:pointer;transition:all .3s;background:rgba(139,92,246,0.04);
+  margin-bottom:1.1rem}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--p1);background:rgba(139,92,246,0.1)}
+.upload-icon{font-size:2.5rem;margin-bottom:.6rem}
+.upload-text{color:var(--muted);font-size:.88rem}
+.upload-text strong{color:#A78BFA}
+#fileInput{display:none}
+
+/* ── WIKI SEARCH ── */
+.wiki-row{display:flex;gap:8px;margin-bottom:1.1rem}
+.wiki-row input{margin-bottom:0;flex:1}
+
+/* ── SCRIPT BOX ── */
+.script-box{background:rgba(5,5,20,0.65);border:1px solid rgba(139,92,246,0.2);
+  border-radius:14px;padding:1.2rem 1.4rem;font-family:'Courier New',monospace;font-size:.87rem;
+  line-height:1.9;max-height:380px;overflow-y:auto;white-space:pre-wrap;margin:1rem 0;
+  color:#C4B5FD;transition:border-color .3s}
+.script-box:focus{outline:none;border-color:var(--p1)}
+.script-box::-webkit-scrollbar{width:5px}
+.script-box::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.4);border-radius:10px}
+
+/* ── PROGRESS ── */
+.progress-wrap{margin-top:1.4rem}
+.progress-label{font-size:.85rem;color:var(--muted);margin-bottom:.6rem;font-weight:600;display:flex;justify-content:space-between}
+.progress-bar{width:100%;height:10px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden;margin-bottom:.8rem}
+.progress-fill{height:100%;background:linear-gradient(90deg,#7C3AED,#06B6D4,#10B981);
+  border-radius:10px;transition:width .4s ease;box-shadow:0 0 14px rgba(124,58,237,0.5);
+  background-size:200% 100%;animation:progressShimmer 2s linear infinite}
+@keyframes progressShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.progress-log{max-height:180px;overflow-y:auto;background:rgba(5,5,20,0.55);
+  border:1px solid rgba(139,92,246,0.12);border-radius:10px;padding:.8rem 1rem;
+  font-family:'Courier New',monospace;font-size:.77rem;color:var(--muted)}
+.progress-log::-webkit-scrollbar{width:4px}
+.progress-log::-webkit-scrollbar-thumb{background:rgba(139,92,246,0.35);border-radius:10px}
+.log-item{padding:3px 0;border-bottom:1px solid rgba(139,92,246,0.07);display:flex;gap:8px;align-items:flex-start}
+.log-item:last-child{border:none}
+.log-speaker{color:#A78BFA;font-weight:700;min-width:60px}
+.log-emotion{color:#67E8F9;font-size:.72rem;min-width:70px}
+.log-text{color:var(--muted);flex:1}
+
+/* ── STATS ── */
+.stats-row{display:flex;gap:10px;flex-wrap:wrap;margin:.8rem 0}
+.stat-box{flex:1;min-width:80px;background:rgba(139,92,246,0.08);
+  border:1px solid rgba(139,92,246,0.18);border-radius:14px;padding:.9rem;text-align:center}
+.stat-val{font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;color:#A78BFA}
+.stat-lbl{font-size:.72rem;color:var(--muted);margin-top:2px}
+
+/* ── AUDIO RESULT ── */
+.audio-result{margin-top:1.4rem;display:none;background:rgba(16,185,129,0.06);
+  border:1px solid rgba(16,185,129,0.2);border-radius:18px;padding:1.5rem}
+.audio-result.show{display:block;animation:fadeUp .5s ease}
+.audio-result h3{color:#34D399;font-family:'Outfit',sans-serif;margin-bottom:1rem;font-size:1.1rem}
+audio{width:100%;margin:.8rem 0;border-radius:30px;accent-color:var(--p1)}
+
+/* ── HISTORY ── */
+.history-empty{text-align:center;padding:3rem;color:var(--muted)}
+.history-empty .empty-icon{font-size:3rem;margin-bottom:1rem}
+.history-grid{display:flex;flex-direction:column;gap:12px}
+.history-item{background:var(--surface2);border:1px solid var(--border);border-radius:16px;
+  padding:1.2rem 1.4rem;display:flex;align-items:center;gap:14px;transition:all .25s}
+.history-item:hover{border-color:rgba(139,92,246,0.35);box-shadow:0 4px 20px rgba(139,92,246,0.08)}
+.history-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,#7C3AED,#06B6D4);
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.history-info{flex:1;min-width:0}
+.history-title{font-weight:700;font-size:.92rem;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history-meta{font-size:.75rem;color:var(--muted);margin-top:3px;display:flex;gap:10px;flex-wrap:wrap}
+.history-meta span{display:flex;align-items:center;gap:3px}
+.history-actions{display:flex;gap:6px;flex-shrink:0}
+.h-badge{padding:2px 8px;border-radius:10px;font-size:.7rem;font-weight:600}
+.h-badge-lang{background:rgba(139,92,246,0.15);color:#A78BFA;border:1px solid rgba(139,92,246,0.2)}
+.h-badge-tone{background:rgba(236,72,153,0.12);color:#F9A8D4;border:1px solid rgba(236,72,153,0.2)}
+
+/* ── ALERTS ── */
+.alert{padding:.85rem 1.1rem;border-radius:10px;margin:.8rem 0;display:none;font-size:.87rem}
+.alert.show{display:block;animation:fadeUp .3s ease}
+.alert-error{background:rgba(239,68,68,0.1);border-left:3px solid #EF4444;color:#FCA5A5}
+.alert-info{background:rgba(139,92,246,0.1);border-left:3px solid #8B5CF6;color:#A78BFA}
+.alert-success{background:rgba(16,185,129,0.1);border-left:3px solid #10B981;color:#6EE7B7}
+.alert-warn{background:rgba(245,158,11,0.1);border-left:3px solid #F59E0B;color:#FCD34D}
+
+/* ── MISC ── */
+.spinner{width:17px;height:17px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);
+  border-top-color:#fff;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.hidden{display:none!important}
+.divider{text-align:center;color:var(--muted);font-size:.8rem;margin:1.2rem 0;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:44%;height:1px;background:var(--border)}
+.divider::before{left:0}.divider::after{right:0}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+@media(max-width:600px){.two-col{grid-template-columns:1fr}}
+.silence-row{display:flex;align-items:center;gap:12px;margin-bottom:1.1rem}
+.silence-row input[type=range]{flex:1;accent-color:var(--p1);margin-bottom:0}
+.silence-val{color:#A78BFA;font-weight:700;font-size:.9rem;min-width:50px;text-align:right}
+</style>
+</head>
+<body>
+<div class="bg-mesh"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🎙️</div>
+  <h1>Podcast Studio Pro</h1>
+  <p class="tagline">AI Script · Multi-Language · Real-time Audio Generation</p>
+  <div class="badges">
+    <span class="badge">✦ NVIDIA Nemotron AI</span>
+    <span class="badge">✦ Microsoft EdgeTTS</span>
+    <span class="badge">✦ 50+ Languages</span>
+    <span class="badge">✦ PDF / DOCX / Wiki</span>
+    <span class="badge">✦ SSE Progress</span>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <button class="nav-tab active" onclick="switchTab('studio')">🎚️ Studio</button>
+  <button class="nav-tab" onclick="switchTab('history')">📚 History</button>
+</div>
+
+<!-- ══════════════ STUDIO TAB ══════════════ -->
+<div class="tab-panel active" id="tab-studio">
+
+<!-- STEP 1: INPUT -->
+<div class="card" id="step1Card">
+  <div class="card-header">
+    <div class="step-num" id="step1Num">1</div>
+    <div><div class="card-title">Content Input</div><div class="card-sub">Paste text, upload a file, or search Wikipedia</div></div>
+  </div>
+
+  <label>Podcast Title (optional)</label>
+  <input type="text" id="aiTitle" placeholder="e.g. The Future of Artificial Intelligence">
+
+  <!-- Upload Zone -->
+  <label>Upload PDF / DOCX / TXT</label>
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+    <div class="upload-icon">📄</div>
+    <div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PDF, DOCX, TXT supported</div>
+  </div>
+  <input type="file" id="fileInput" accept=".pdf,.docx,.txt" onchange="handleFileUpload(this)">
+
+  <!-- Wikipedia Search -->
+  <label>Wikipedia Search</label>
+  <div class="wiki-row">
+    <input type="text" id="wikiQuery" placeholder="Search Wikipedia topic..." onkeydown="if(event.key==='Enter')searchWiki()">
+    <button class="btn btn-cyan" onclick="searchWiki()" id="wikiBtn"><span>🔍</span><span>Search</span></button>
+  </div>
+  <div class="alert alert-info" id="wikiAlert"></div>
+
+  <div class="divider">or type / paste content</div>
+
+  <label>Blog Content / Topic</label>
+  <textarea id="aiContent" placeholder="Paste your blog post, article, or describe a topic..."></textarea>
+
+  <!-- Settings Grid -->
+  <div class="two-col">
+    <div>
+      <label>Podcast Type</label>
+      <div class="opts-row">
+        <div class="opt selected" data-val="single"     onclick="pick('type',this)">👤 Single</div>
+        <div class="opt"          data-val="co-host"    onclick="pick('type',this)">👥 Co-Host</div>
+        <div class="opt"          data-val="multi-host" onclick="pick('type',this)">👥👤 3 Hosts</div>
+      </div>
+    </div>
+    <div>
+      <label>Script Length</label>
+      <div class="opts-row">
+        <div class="len-opt" data-val="short"    onclick="pickLen(this)">⚡ Short</div>
+        <div class="len-opt selected" data-val="moderate" onclick="pickLen(this)">📻 Moderate</div>
+        <div class="len-opt" data-val="long"     onclick="pickLen(this)">🎙️ Long</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <label>Tone / Style</label>
+      <div class="opts-row">
+        <div class="tone-opt selected" data-val="neutral" onclick="pickTone(this)">😐 Neutral</div>
+        <div class="tone-opt" data-val="formal"  onclick="pickTone(this)">🎩 Formal</div>
+        <div class="tone-opt" data-val="casual"  onclick="pickTone(this)">😎 Casual</div>
+        <div class="tone-opt" data-val="comedy"  onclick="pickTone(this)">😂 Comedy</div>
+        <div class="tone-opt" data-val="debate"  onclick="pickTone(this)">⚔️ Debate</div>
+      </div>
+    </div>
+    <div>
+      <label>Language</label>
+      <div class="opts-row" id="langPills">
+        <div class="opt selected" data-val="english"  onclick="pickLang(this)">🇺🇸 English</div>
+        <div class="opt"          data-val="hinglish"  onclick="pickLang(this)">🇮🇳 Hinglish</div>
+        <div class="opt"          data-val="hindi"     onclick="pickLang(this)">🇮🇳 Hindi</div>
+        <select class="lang-select" id="langDropdown" onchange="pickLangDropdown(this)">
+          <option value="">🌐 More...</option>
+          <optgroup label="South Asia">
+            <option value="urdu">🇵🇰 Urdu</option><option value="bengali">🇧🇩 Bengali</option>
+            <option value="tamil">🇮🇳 Tamil</option><option value="telugu">🇮🇳 Telugu</option>
+            <option value="marathi">🇮🇳 Marathi</option><option value="gujarati">🇮🇳 Gujarati</option>
+            <option value="kannada">🇮🇳 Kannada</option><option value="malayalam">🇮🇳 Malayalam</option>
+            <option value="nepali">🇳🇵 Nepali</option><option value="sinhala">🇱🇰 Sinhala</option>
+          </optgroup>
+          <optgroup label="East Asia">
+            <option value="chinese">🇨🇳 Chinese</option><option value="japanese">🇯🇵 Japanese</option>
+            <option value="korean">🇰🇷 Korean</option>
+          </optgroup>
+          <optgroup label="Southeast Asia">
+            <option value="indonesian">🇮🇩 Indonesian</option><option value="malay">🇲🇾 Malay</option>
+            <option value="vietnamese">🇻🇳 Vietnamese</option><option value="thai">🇹🇭 Thai</option>
+            <option value="filipino">🇵🇭 Filipino</option><option value="javanese">🇮🇩 Javanese</option>
+          </optgroup>
+          <optgroup label="Europe">
+            <option value="spanish">🇪🇸 Spanish</option><option value="french">🇫🇷 French</option>
+            <option value="german">🇩🇪 German</option><option value="italian">🇮🇹 Italian</option>
+            <option value="portuguese">🇧🇷 Portuguese</option><option value="russian">🇷🇺 Russian</option>
+            <option value="dutch">🇳🇱 Dutch</option><option value="polish">🇵🇱 Polish</option>
+            <option value="swedish">��🇪 Swedish</option><option value="turkish">🇹🇷 Turkish</option>
+            <option value="greek">🇬🇷 Greek</option><option value="czech">🇨🇿 Czech</option>
+            <option value="romanian">🇷🇴 Romanian</option><option value="hungarian">🇭🇺 Hungarian</option>
+            <option value="danish">🇩🇰 Danish</option><option value="finnish">��🇮 Finnish</option>
+            <option value="norwegian">🇳🇴 Norwegian</option><option value="ukrainian">🇺🇦 Ukrainian</option>
+            <option value="catalan">Catalan</option><option value="slovak">🇸🇰 Slovak</option>
+            <option value="croatian">🇭🇷 Croatian</option><option value="bulgarian">🇧🇬 Bulgarian</option>
+          </optgroup>
+          <optgroup label="Middle East / Africa">
+            <option value="arabic">🇸🇦 Arabic</option><option value="persian">🇮🇷 Persian</option>
+            <option value="hebrew">🇮🇱 Hebrew</option><option value="swahili">🇰🇪 Swahili</option>
+            <option value="amharic">🇪�� Amharic</option><option value="somali">🇸🇴 Somali</option>
+            <option value="zulu">🇿🇦 Zulu</option><option value="afrikaans">🇿🇦 Afrikaans</option>
+          </optgroup>
+          <optgroup label="Central / Other Asia">
+            <option value="azerbaijani">🇦🇿 Azerbaijani</option><option value="kazakh">🇰🇿 Kazakh</option>
+            <option value="uzbek">🇺🇿 Uzbek</option><option value="mongolian">🇲🇳 Mongolian</option>
+            <option value="khmer">🇰🇭 Khmer</option><option value="lao">🇱🇦 Lao</option>
+            <option value="burmese">🇲🇲 Burmese</option>
+          </optgroup>
+          <optgroup label="Celtic / Other">
+            <option value="galician">Galician</option><option value="welsh">Welsh</option>
+            <option value="irish">🇮🇪 Irish</option>
+          </optgroup>
+        </select>
+      </div>
+      <div id="selectedLangBadge" style="display:none;margin-top:.3rem;font-size:.76rem;color:#F59E0B">
+        Selected: <span id="selectedLangName"></span>
+        <span onclick="clearDropdownLang()" style="cursor:pointer;margin-left:6px;color:#888">✕ reset</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="generateScript()"><span>✨</span><span>Generate AI Script</span></button>
+    <button class="btn btn-ghost" onclick="clearAll()">🗑️ Clear</button>
+  </div>
+  <div class="alert alert-error" id="step1Error"></div>
+</div>
+
+<!-- STEP 2: SCRIPT -->
+<div class="card hidden" id="step2Card">
+  <div class="card-header">
+    <div class="step-num" id="step2Num">2</div>
+    <div><div class="card-title">Generated Script</div><div class="card-sub">Review, edit, then generate audio</div></div>
+  </div>
+
+  <div id="scriptOutput" class="script-box" contenteditable="true" spellcheck="false"></div>
+  <div class="alert alert-info show">You can edit the script above before generating audio.</div>
+
+  <!-- Regenerate with tone -->
+  <div style="margin:.8rem 0 1.2rem">
+    <label>Regenerate with different tone</label>
+    <div class="opts-row">
+      <div class="tone-opt" data-val="neutral" onclick="pickRegenTone(this)">😐 Neutral</div>
+      <div class="tone-opt" data-val="formal"  onclick="pickRegenTone(this)">🎩 Formal</div>
+      <div class="tone-opt" data-val="casual"  onclick="pickRegenTone(this)">😎 Casual</div>
+      <div class="tone-opt" data-val="comedy"  onclick="pickRegenTone(this)">😂 Comedy</div>
+      <div class="tone-opt" data-val="debate"  onclick="pickRegenTone(this)">⚔️ Debate</div>
+    </div>
+    <button class="btn btn-pink btn-sm" onclick="regenerateWithTone()" id="regenToneBtn" style="margin-top:.5rem">
+      <span>🔄</span><span>Regenerate Script</span>
+    </button>
+  </div>
+
+  <label>Podcast Name (optional)</label>
+  <input type="text" id="podcastName" placeholder="my_podcast">
+
+  <!-- Silence control -->
+  <label>Silence Between Dialogues</label>
+  <div class="silence-row">
+    <input type="range" id="silenceRange" min="0" max="1000" step="50" value="300" oninput="updateSilence(this.value)">
+    <span class="silence-val" id="silenceVal">300ms</span>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-green" onclick="generateAudio()" id="genAudioBtn"><span>🎵</span><span>Generate Audio</span></button>
+    <button class="btn btn-ghost" onclick="backToStep1()">← Back</button>
+  </div>
+  <div class="alert alert-error" id="step2Error"></div>
+
+  <!-- SSE Progress -->
+  <div id="audioProgress" class="progress-wrap hidden">
+    <div class="progress-label">
+      <span id="progressText">Generating audio segments...</span>
+      <span id="progressCount">0 / 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:4%"></div></div>
+    <div class="progress-log" id="progressLog"></div>
+  </div>
+
+  <!-- Audio Result -->
+  <div class="audio-result" id="audioResult">
+    <h3>🎉 Podcast Ready!</h3>
+    <div class="stats-row" id="audioStats"></div>
+    <audio id="audioPlayer" controls></audio>
+    <div class="btn-row" style="margin-top:1rem">
+      <button class="btn btn-green" onclick="downloadAudio()">⬇️ Download MP3</button>
+      <button class="btn btn-ghost" onclick="startOver()">🔄 Start Over</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end studio tab -->
+
+<!-- ══════════════ HISTORY TAB ══════════════ -->
+<div class="tab-panel" id="tab-history">
+  <div class="card">
+    <div class="card-header">
+      <div class="step-num" style="background:linear-gradient(135deg,#F59E0B,#EC4899)">📚</div>
+      <div><div class="card-title">Podcast History</div><div class="card-sub">All your generated podcasts</div></div>
+    </div>
+    <div id="historyContainer">
+      <div class="history-empty"><div class="empty-icon">🎙️</div><div>No podcasts yet. Generate your first one!</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+<script>
+// ── STATE ──
+let podcastType = 'single';
+let language = 'english';
+let tone = 'neutral';
+let scriptLength = 'moderate';
+let regenTone = 'neutral';
+let currentFilename = '';
+let silenceMs = 300;
+let currentJobId = '';
+
+// ── TAB SWITCHING ──
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'history') loadHistory();
+}
+
+// ── PICK HELPERS ──
+function pick(group, el) {
+  el.parentElement.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  if (group === 'type') podcastType = el.dataset.val;
+}
+function pickTone(el) {
+  el.parentElement.querySelectorAll('.tone-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  tone = el.dataset.val;
+}
+function pickLen(el) {
+  el.parentElement.querySelectorAll('.len-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  scriptLength = el.dataset.val;
+}
+function pickRegenTone(el) {
+  el.parentElement.querySelectorAll('.tone-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  regenTone = el.dataset.val;
+}
+function pickLang(el) {
+  document.querySelectorAll('#langPills .opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  language = el.dataset.val;
+  document.getElementById('langDropdown').value = '';
+  document.getElementById('selectedLangBadge').style.display = 'none';
+}
+function pickLangDropdown(sel) {
+  if (!sel.value) return;
+  document.querySelectorAll('#langPills .opt').forEach(o => o.classList.remove('selected'));
+  language = sel.value;
+  document.getElementById('selectedLangName').textContent = sel.options[sel.selectedIndex].text;
+  document.getElementById('selectedLangBadge').style.display = 'block';
+}
+function clearDropdownLang() {
+  document.getElementById('langDropdown').value = '';
+  document.getElementById('selectedLangBadge').style.display = 'none';
+  document.querySelector('#langPills .opt[data-val="english"]').classList.add('selected');
+  language = 'english';
+}
+function updateSilence(val) {
+  silenceMs = parseInt(val);
+  document.getElementById('silenceVal').textContent = val + 'ms';
+}
+
+// ── FILE UPLOAD ──
+function dragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('drag-over'); }
+function dragLeave(e) { document.getElementById('uploadZone').classList.remove('drag-over'); }
+function dropFile(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) processFile(file);
+}
+function handleFileUpload(input) {
+  if (input.files[0]) processFile(input.files[0]);
+}
+async function processFile(file) {
+  const zone = document.getElementById('uploadZone');
+  zone.innerHTML = '<div class="upload-icon"><span class="spinner"></span></div><div class="upload-text">Extracting text...</div>';
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('aiContent').value = data.content;
+      if (!document.getElementById('aiTitle').value) {
+        document.getElementById('aiTitle').value = file.name.replace(/\.[^.]+$/, '');
+      }
+      zone.innerHTML = '<div class="upload-icon">✅</div><div class="upload-text"><strong>' + file.name + '</strong> loaded (' + data.chars + ' chars)</div>';
+    } else {
+      zone.innerHTML = '<div class="upload-icon">📄</div><div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PDF, DOCX, TXT supported</div>';
+      showAlert('step1Error', data.error);
+    }
+  } catch (err) {
+    zone.innerHTML = '<div class="upload-icon">📄</div><div class="upload-text"><strong>Click to upload</strong> or drag & drop</div>';
+    showAlert('step1Error', 'Upload failed: ' + err.message);
+  }
+}
+
+// ── WIKIPEDIA SEARCH ──
+async function searchWiki() {
+  const query = document.getElementById('wikiQuery').value.trim();
+  if (!query) return;
+  const btn = document.getElementById('wikiBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>';
+  hideAlert('wikiAlert');
+  try {
+    const res = await fetch('/api/wikipedia', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ query })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('aiContent').value = data.content;
+      document.getElementById('aiTitle').value = data.title;
+      showAlertType('wikiAlert', 'info', '✅ Loaded: ' + data.title + ' — ' + data.content.length + ' chars');
+    } else {
+      showAlertType('wikiAlert', 'error', data.error);
+    }
+  } catch (err) {
+    showAlertType('wikiAlert', 'error', 'Wiki search failed: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔍</span><span>Search</span>';
+  }
+}
+
+// ── GENERATE SCRIPT ──
+async function generateScript() {
+  const content = document.getElementById('aiContent').value.trim();
+  const title   = document.getElementById('aiTitle').value.trim();
+  if (!content) { showAlert('step1Error', 'Please enter content first!'); return; }
+  hideAlert('step1Error');
+  const btn = event.target.closest('button');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  try {
+    const res = await fetch('/api/ai-generate', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ content, title, podcast_type: podcastType, language, tone, length: scriptLength })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) { showAlert('step1Error', data.error || 'AI generation failed.'); return; }
+    showScript(data.script);
+  } catch (err) {
+    showAlert('step1Error', 'Network error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>✨</span><span>Generate AI Script</span>';
+  }
+}
+
+// ── REGENERATE WITH TONE ──
+async function regenerateWithTone() {
+  const content = document.getElementById('aiContent').value.trim();
+  const title   = document.getElementById('aiTitle').value.trim();
+  if (!content) { showAlert('step2Error', 'No content to regenerate from!'); return; }
+  const btn = document.getElementById('regenToneBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Regenerating...';
+  try {
+    const res = await fetch('/api/ai-generate', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ content, title, podcast_type: podcastType, language, tone: regenTone, length: scriptLength })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) { showAlert('step2Error', data.error || 'Regeneration failed.'); return; }
+    document.getElementById('scriptOutput').innerText = data.script;
+    hideAlert('step2Error');
+  } catch (err) {
+    showAlert('step2Error', 'Network error: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔄</span><span>Regenerate Script</span>';
+  }
+}
+
+function showScript(script) {
+  document.getElementById('scriptOutput').innerText = script;
+  document.getElementById('step2Card').classList.remove('hidden');
+  document.getElementById('step1Num').classList.add('done');
+  document.getElementById('step1Num').textContent = '✓';
+  document.getElementById('audioProgress').classList.add('hidden');
+  document.getElementById('audioResult').classList.remove('show');
+  hideAlert('step2Error');
+  document.getElementById('step2Card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function backToStep1() {
+  document.getElementById('step2Card').classList.add('hidden');
+  document.getElementById('step1Num').classList.remove('done');
+  document.getElementById('step1Num').textContent = '1';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── GENERATE AUDIO with SSE ──
+async function generateAudio() {
+  const script = document.getElementById('scriptOutput').innerText.trim();
+  const name   = document.getElementById('podcastName').value.trim() || 'podcast_' + Date.now();
+  if (!script) { showAlert('step2Error', 'Script is empty!'); return; }
+  hideAlert('step2Error');
+  document.getElementById('audioResult').classList.remove('show');
+  document.getElementById('audioProgress').classList.remove('hidden');
+  document.getElementById('progressFill').style.width = '4%';
+  document.getElementById('progressLog').innerHTML = '<div class="log-item"><span class="log-text">Connecting to audio engine...</span></div>';
+  document.getElementById('progressText').textContent = 'Generating audio segments...';
+  document.getElementById('progressCount').textContent = '0 / ?';
+
+  const btn = document.getElementById('genAudioBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+
+  currentJobId = 'job_' + Date.now();
+
+  // Start SSE listener
+  const evtSource = new EventSource('/api/progress/' + currentJobId);
+  let totalSegs = 0;
+  let completedSegs = 0;
+
+  evtSource.onmessage = function(e) {
+    const msg = JSON.parse(e.data);
+    if (msg.type === 'start') {
+      totalSegs = msg.total;
+      document.getElementById('progressCount').textContent = '0 / ' + totalSegs;
+    } else if (msg.type === 'progress') {
+      completedSegs = msg.completed;
+      const pct = Math.round((completedSegs / msg.total) * 90) + 5;
+      document.getElementById('progressFill').style.width = pct + '%';
+      document.getElementById('progressCount').textContent = completedSegs + ' / ' + msg.total;
+      const item = msg.item;
+      const log = document.getElementById('progressLog');
+      log.innerHTML += '<div class="log-item"><span class="log-speaker">' + item.speaker + '</span><span class="log-emotion">' + item.emotion + '</span><span class="log-text">' + item.text + '</span></div>';
+      log.scrollTop = log.scrollHeight;
+    } else if (msg.type === 'done' || msg.type === 'error') {
+      evtSource.close();
+    }
+  };
+  evtSource.onerror = function() { evtSource.close(); };
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ script, name, language, silence_ms: silenceMs, job_id: currentJobId,
+                             podcast_type: podcastType, tone, length: scriptLength })
+    });
+    const data = await res.json();
+    evtSource.close();
+
+    if (!res.ok || !data.success) {
+      showAlert('step2Error', data.error || 'Audio generation failed');
+      document.getElementById('audioProgress').classList.add('hidden');
+      return;
+    }
+
+    document.getElementById('progressFill').style.width = '100%';
+    document.getElementById('progressCount').textContent = data.total_segments + ' / ' + data.total_segments;
+
+    setTimeout(() => {
+      currentFilename = data.filename;
+      document.getElementById('audioStats').innerHTML =
+        '<div class="stat-box"><div class="stat-val">' + data.total_segments + '</div><div class="stat-lbl">Segments</div></div>' +
+        '<div class="stat-box"><div class="stat-val">' + data.speakers + '</div><div class="stat-lbl">Speakers</div></div>' +
+        '<div class="stat-box"><div class="stat-val">' + data.file_size + '</div><div class="stat-lbl">File Size</div></div>';
+      document.getElementById('audioPlayer').src = '/api/stream/' + data.filename;
+      document.getElementById('audioProgress').classList.add('hidden');
+      document.getElementById('audioResult').classList.add('show');
+      document.getElementById('step2Num').classList.add('done');
+      document.getElementById('step2Num').textContent = '✓';
+      document.getElementById('audioResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 600);
+
+  } catch (err) {
+    evtSource.close();
+    showAlert('step2Error', 'Network error: ' + err.message);
+    document.getElementById('audioProgress').classList.add('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span>🎵</span><span>Generate Audio</span>';
+  }
+}
+
+function downloadAudio() {
+  if (currentFilename) window.location.href = '/api/download/' + currentFilename;
+}
+
+function startOver() {
+  document.getElementById('step2Card').classList.add('hidden');
+  document.getElementById('step1Num').classList.remove('done');
+  document.getElementById('step1Num').textContent = '1';
+  document.getElementById('aiContent').value = '';
+  document.getElementById('aiTitle').value = '';
+  currentFilename = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function clearAll() {
+  document.getElementById('aiContent').value = '';
+  document.getElementById('aiTitle').value = '';
+  document.getElementById('uploadZone').innerHTML = '<div class="upload-icon">📄</div><div class="upload-text"><strong>Click to upload</strong> or drag & drop<br>PDF, DOCX, TXT supported</div>';
+  document.getElementById('wikiQuery').value = '';
+  hideAlert('step1Error');
+  hideAlert('wikiAlert');
+}
+
+// ── HISTORY ──
+async function loadHistory() {
+  try {
+    const res = await fetch('/api/history');
+    const data = await res.json();
+    renderHistory(data.history || []);
+  } catch (err) {
+    document.getElementById('historyContainer').innerHTML = '<div class="alert alert-error show">Failed to load history</div>';
+  }
+}
+
+function renderHistory(history) {
+  const container = document.getElementById('historyContainer');
+  if (!history.length) {
+    container.innerHTML = '<div class="history-empty"><div class="empty-icon">🎙️</div><div>No podcasts yet. Generate your first one!</div></div>';
+    return;
+  }
+  const toneEmoji = { neutral:'😐', formal:'🎩', casual:'😎', comedy:'😂', debate:'⚔️' };
+  const typeEmoji = { single:'👤', 'co-host':'👥', 'multi-host':'👥👤' };
+  container.innerHTML = '<div class="history-grid">' + history.map(h => `
+    <div class="history-item">
+      <div class="history-icon">🎙️</div>
+      <div class="history-info">
+        <div class="history-title">${h.title || h.filename}</div>
+        <div class="history-meta">
+          <span>📅 ${h.created_at || ''}</span>
+          <span>💾 ${h.file_size || ''}</span>
+          <span>${typeEmoji[h.type] || '👤'} ${h.speakers || 1} speakers</span>
+          <span>🎵 ${h.segments || 0} segs</span>
+        </div>
+        <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap">
+          <span class="h-badge h-badge-lang">${h.language || 'english'}</span>
+          <span class="h-badge h-badge-tone">${toneEmoji[h.tone] || ''} ${h.tone || 'neutral'}</span>
+          <span class="h-badge" style="background:rgba(16,185,129,0.12);color:#6EE7B7;border:1px solid rgba(16,185,129,0.2)">${h.length || 'moderate'}</span>
+        </div>
+      </div>
+      <div class="history-actions">
+        <button class="btn btn-cyan btn-sm" onclick="playHistory('${h.filename}')">▶ Play</button>
+        <button class="btn btn-ghost btn-sm" onclick="downloadHistory('${h.filename}')">⬇</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteHistory('${h.filename}', this)">🗑</button>
+      </div>
+    </div>
+  `).join('') + '</div>';
+}
+
+function playHistory(filename) {
+  switchTab('studio');
+  document.querySelectorAll('.nav-tab').forEach((t,i) => { if(i===0) t.classList.add('active'); else t.classList.remove('active'); });
+  document.getElementById('tab-studio').classList.add('active');
+  document.getElementById('tab-history').classList.remove('active');
+  document.getElementById('step2Card').classList.remove('hidden');
+  document.getElementById('audioResult').classList.add('show');
+  document.getElementById('audioPlayer').src = '/api/stream/' + filename;
+  currentFilename = filename;
+  document.getElementById('audioResult').scrollIntoView({ behavior: 'smooth' });
+}
+
+function downloadHistory(filename) {
+  window.location.href = '/api/download/' + filename;
+}
+
+async function deleteHistory(filename, btn) {
+  if (!confirm('Delete this podcast?')) return;
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/history/delete/' + filename, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) loadHistory();
+  } catch (err) {
+    alert('Delete failed: ' + err.message);
+  }
+}
+
+// ── ALERT HELPERS ──
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'alert alert-error show';
+}
+function showAlertType(id, type, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'alert alert-' + type + ' show';
+}
+function hideAlert(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('show');
+}
+</script>
+</body>
+</html>

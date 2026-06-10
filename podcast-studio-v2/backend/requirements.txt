@@ -1,0 +1,7 @@
+flask>=3.0.3
+flask-limiter>=3.8.0
+python-dotenv>=1.0.1
+openai>=1.52.0
+edge-tts>=7.0.0
+pydub>=0.25.1
+sqlalchemy>=2.0.36

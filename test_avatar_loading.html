@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Avatar Loading</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        #canvas {
+            width: 100%;
+            height: 500px;
+            background: #000;
+            border-radius: 10px;
+        }
+        .log {
+            background: #f5f5f5;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+        .log-error { color: red; }
+        .log-success { color: green; }
+        .log-info { color: blue; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Avatar Loading Test</h1>
+        <p>Testing TalkingHead library and avatar loading...</p>
+        
+        <canvas id="canvas"></canvas>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js/+esm",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+            "talkinghead": "https://cdn.jsdelivr.net/gh/met4citizen/TalkingHead@1.7/modules/talkinghead.mjs"
+        }
+    }
+    </script>
+
+    <script type="module">
+        const log = document.getElementById('log');
+
+        function addLog(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            console.log(message);
+        }
+
+        async function testAvatarLoading() {
+            try {
+                addLog('Starting test...', 'info');
+                
+                // Test 1: Check if Three.js loads
+                addLog('Test 1: Loading Three.js...', 'info');
+                const THREE = await import('three');
+                addLog('✓ Three.js loaded successfully', 'success');
+                
+                // Test 2: Check if TalkingHead loads
+                addLog('Test 2: Loading TalkingHead library...', 'info');
+                const { TalkingHead } = await import('talkinghead');
+                addLog('✓ TalkingHead library loaded', 'success');
+                
+                // Test 3: Initialize TalkingHead
+                addLog('Test 3: Initializing TalkingHead...', 'info');
+                const canvas = document.getElementById('canvas');
+                const head = new TalkingHead(canvas, {
+                    cameraView: 'head',
+                    lightAmbientIntensity: 3,
+                    lightDirectIntensity: 20
+                });
+                addLog('✓ TalkingHead initialized', 'success');
+                
+                // Test 4: Check avatar file accessibility
+                addLog('Test 4: Checking avatar file...', 'info');
+                const avatarUrl = 'http://localhost:8000/avatars/avatar.glb';
+                addLog(`Trying to fetch: ${avatarUrl}`, 'info');
+                
+                const response = await fetch(avatarUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                addLog(`✓ Avatar file accessible (${response.status})`, 'success');
+                
+                // Test 5: Load avatar
+                addLog('Test 5: Loading avatar into TalkingHead...', 'info');
+                await head.showAvatar({
+                    url: avatarUrl,
+                    body: 'M',
+                    avatarMood: 'neutral',
+                    lipsyncLang: 'en'
+                });
+                addLog('✓ Avatar loaded successfully!', 'success');
+                
+                // Test 6: Start animation
+                addLog('Test 6: Starting animation...', 'info');
+                head.start();
+                addLog('✓ Animation started!', 'success');
+                
+                addLog('=== ALL TESTS PASSED ===', 'success');
+                
+            } catch (error) {
+                addLog(`❌ ERROR: ${error.message}`, 'error');
+                addLog(`Stack: ${error.stack}`, 'error');
+                console.error('Full error:', error);
+            }
+        }
+
+        // Run tests
+        testAvatarLoading();
+    </script>
+</body>
+</html>

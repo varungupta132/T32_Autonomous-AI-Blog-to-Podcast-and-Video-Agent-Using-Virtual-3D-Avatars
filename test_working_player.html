@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Working Player</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+        h1 { color: #333; text-align: center; }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        .btn {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #45a049; }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Testing Working Animated Player</h1>
+        
+        <div class="test-section">
+            <h3>Test 1: Check Server</h3>
+            <button class="btn" onclick="testServer()">Test Server Connection</button>
+            <div id="serverStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 2: Check Audio File</h3>
+            <button class="btn" onclick="testAudio()">Test Audio Access</button>
+            <div id="audioStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 3: Open Player</h3>
+            <button class="btn" onclick="openPlayer()">Open Working Player</button>
+            <p style="color: #666; margin-top: 10px;">
+                This will open the player in a new tab. Upload the audio file manually.
+            </p>
+        </div>
+
+        <div class="test-section">
+            <h3>Test 4: Direct Audio Test</h3>
+            <audio id="testAudio" controls style="width: 100%; margin: 10px 0;"></audio>
+            <button class="btn" onclick="loadTestAudio()">Load Test Audio</button>
+            <div id="directStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        async function testServer() {
+            const status = document.getElementById('serverStatus');
+            try {
+                status.className = 'status info';
+                status.textContent = 'Testing server connection...';
+
+                const response = await fetch('http://localhost:5003/');
+                
+                if (response.ok) {
+                    status.className = 'status success';
+                    status.textContent = '✓ Server is running on port 5003!';
+                } else {
+                    throw new Error(`Server returned ${response.status}`);
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Server not accessible: ' + error.message;
+            }
+        }
+
+        async function testAudio() {
+            const status = document.getElementById('audioStatus');
+            try {
+                status.className = 'status info';
+                status.textContent = 'Checking audio file...';
+
+                const response = await fetch('http://localhost:5003/uploads/test_podcast.mp3');
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    status.className = 'status success';
+                    status.textContent = `✓ Audio file accessible! Size: ${(blob.size / 1024).toFixed(2)} KB`;
+                } else {
+                    throw new Error(`Audio file returned ${response.status}`);
+                }
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Audio file not accessible: ' + error.message;
+            }
+        }
+
+        function openPlayer() {
+            window.open('http://localhost:5003/', '_blank');
+        }
+
+        function loadTestAudio() {
+            const audio = document.getElementById('testAudio');
+            const status = document.getElementById('directStatus');
+            
+            try {
+                audio.src = 'http://localhost:5003/uploads/test_podcast.mp3';
+                
+                audio.addEventListener('loadedmetadata', () => {
+                    status.className = 'status success';
+                    status.textContent = `✓ Audio loaded! Duration: ${audio.duration.toFixed(2)}s`;
+                });
+
+                audio.addEventListener('error', (e) => {
+                    status.className = 'status error';
+                    status.textContent = '❌ Error loading audio: ' + e.message;
+                });
+
+            } catch (error) {
+                status.className = 'status error';
+                status.textContent = '❌ Error: ' + error.message;
+            }
+        }
+
+        // Auto-run tests on load
+        window.onload = () => {
+            setTimeout(() => {
+                testServer();
+                setTimeout(() => testAudio(), 1000);
+            }, 500);
+        };
+    </script>
+</body>
+</html>
